@@ -8,29 +8,31 @@
 extern int nb_jump_taken;
 
 SC_MODULE(decod) {
-
     // Interface with REG :
 
-        sc_in<sc_uint<32>> RDATA1_SR;                   // value stock inside of the register Rs1
-        sc_in<sc_uint<32>> RDATA2_SR;                   // value stock inside of the register Rs2
-        sc_in<sc_uint<32>> READ_PC_SR;                  // value stock inside of the register PC(R32)
-        sc_out<sc_uint<6>>  RADR1_SD;                   // number of the register Rs1
-        sc_out<sc_uint<6>>  RADR2_SD;                   // number of the register Rs2
-        sc_out<sc_uint<32>> WRITE_PC_SD;                
-        sc_out<bool>        WRITE_PC_ENABLE_SD;
+    sc_in<sc_uint<32>> RDATA1_SR;// value stock inside of the register Rs1
+    sc_in<sc_uint<32>> RDATA2_SR;// value stock inside of the register Rs2
+
+    sc_in<sc_uint<32>> READ_PC_SR;  // value stock inside of the register PC(R32)
+
+    sc_out<sc_uint<6>>  RADR1_SD;  // number of the register Rs1
+    sc_out<sc_uint<6>>  RADR2_SD; // number of the register Rs2
+    sc_out<sc_uint<32>> WRITE_PC_SD;
+    sc_out<bool>        WRITE_PC_ENABLE_SD;
 
     // Interface with EXE :
 
-    sc_out<sc_uint<32>> OP1_RD;                         // value of op1
-    sc_out<sc_uint<32>> OP2_RD;                         // value of op2
-    sc_out<sc_uint<2>>  EXE_CMD_RD;                     // command number sent to exe
-    sc_out<bool>        NEG_OP2_RD;                     // say if we take the opposite of the op2 to do a substraction for example
-    sc_out<bool>        WB_RD;                          // say if we plan to wbk the value of rd or no
-    sc_out<sc_uint<6>>  EXE_DEST_RD;                    // the destination register
-    sc_out<sc_uint<4>>  SELECT_TYPE_OPERATIONS_RD;      // taille fifo entrée : 110
+    sc_out<sc_uint<32>> OP1_RD;                     // value of op1
+    sc_out<sc_uint<32>> OP2_RD;                     // value of op2
+    sc_out<sc_uint<2>>  EXE_CMD_RD;                 // value of the command sent to exe
+    sc_out<bool>        NEG_OP2_RD;                 // say if we take the opposite of the op1 to do a
+                                                    // substraction for example
+    sc_out<bool>        WB_RD;                      // say if we plan to wbk the value of rd or no
+    sc_out<sc_uint<6>>  EXE_DEST_RD;                // the destination register
+    sc_out<sc_uint<4>>  SELECT_TYPE_OPERATIONS_RD;  // taille fifo entrée : 110
     sc_out<bool>        SLT_RD;
     sc_out<bool>        SLTU_RD;
-    sc_out<sc_uint<32>> PC_DEC2EXE_RD;                  // PC link to the current decoded instruction
+    sc_out<sc_uint<32>> PC_DEC2EXE_RD;       // PC link to the current decoded instruction
     sc_out<sc_uint<32>> PC_BRANCH_VALUE_RD;  // PC of the branch value, will be usefull for exception
     sc_out<sc_uint<32>> MEM_DATA_RD;         // data sent to mem for storage
     sc_out<bool>        MEM_LOAD_RD;         // say to mem if we do a load
@@ -52,9 +54,9 @@ SC_MODULE(decod) {
 
     sc_out<bool>        PRED_FAILED_RD;
     sc_out<bool>        PRED_SUCCESS_RD;
-    sc_out<bool>        BRANCH_INST_RD;
+    sc_out<bool>        INSTR_IS_BRANCH_RD;
     sc_out<sc_uint<32>> BRANCH_INST_ADR_RD;
-    sc_out<sc_uint<32>> ADR_TO_BRANCH_RD;
+    sc_out<sc_uint<32>> BRANCH_TARGET_ADR_RD;
     sc_out<sc_uint<32>> PC_RD;
 
     sc_out<sc_uint<32>> PRED_ADR_SD;
@@ -62,7 +64,7 @@ SC_MODULE(decod) {
 
     sc_out<bool>        PUSH_ADR_RAS_RD;
     sc_out<bool>        POP_ADR_RAS_RD; 
-    sc_out<sc_uint<32>> ADR_TO_RET_RD;    
+    sc_out<sc_uint<32>> RETURN_ADR_RD;    
 
     sc_out<bool>        RET_INST_RD;
     // Interface with IF2DEC :
