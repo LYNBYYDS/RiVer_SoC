@@ -17,7 +17,7 @@ void pred_branch_cache::pred_check() {
     }
 }
 
-void pred_branch_cache::write() {
+void pred_branch_cache::pred_write() {
 
     // Starting RESET :
     for (int i = 0; i < PRED_BRANCH_CACHE_SIZE; i++) 
@@ -162,22 +162,24 @@ void pred_branch_cache::write() {
     }
 }
 
-void reg::trace(sc_trace_file* tf) {
-    sc_trace(tf, RADR1_SD, GET_NAME(RADR1_SD));
-    sc_trace(tf, RADR2_SD, GET_NAME(RADR2_SD));
-    sc_trace(tf, RDATA1_SR, GET_NAME(RDATA1_SR));
-    sc_trace(tf, RDATA2_SR, GET_NAME(RDATA2_SR));
-    sc_trace(tf, WADR_SW, GET_NAME(WADR_SW));
-    sc_trace(tf, WENABLE_SW, GET_NAME(WENABLE_SW));
-    sc_trace(tf, WDATA_SW, GET_NAME(WDATA_SW));
-    sc_trace(tf, READ_PC_SR, GET_NAME(READ_PC_SR));
-    sc_trace(tf, WRITE_PC_SD, GET_NAME(WRITE_PC_SD));
-    sc_trace(tf, WRITE_PC_ENABLE_SD, GET_NAME(WRITE_PC_ENABLE_SD));
-    sc_trace(tf, PC_RR, GET_NAME(PC_RR));
+void pred_branch_cache::trace(sc_trace_file* tf) {
+    sc_trace(tf, PRED_ADR_BRANCH_IN_SD, GET_NAME(PRED_ADR_BRANCH_IN_SD));
+    sc_trace(tf, PRED_ADR_AIM_IN_SD, GET_NAME(PRED_ADR_AIM_IN_SD));
+    sc_trace(tf, PRED_ISSUCESS_IN_SD, GET_NAME(PRED_ISSUCESS_IN_SD));
+    sc_trace(tf, PRED_LRU_IN_SD, GET_NAME(PRED_LRU_IN_SD));
+    sc_trace(tf, PRED_ADR_AIM_OUT_SP, GET_NAME(PRED_ADR_AIM_OUT_SP));
+    sc_trace(tf, PRED_COUNTER_OUT_SP, GET_NAME(PRED_COUNTER_OUT_SP));
+    sc_trace(tf, PRED_LRU_OUT_SP, GET_NAME(PRED_LRU_OUT_SP));
+    sc_trace(tf, CLK, GET_NAME(CLK));
+    sc_trace(tf, RESET_N, GET_NAME(RESET_N));
+    sc_trace(tf, pred_branch_cache_used, GET_NAME(pred_branch_cache_used));
 
-    for (int i = 0; i < 32; i++) {
-        std::string regname = "REG_";
-        regname += std::to_string(i);
-        sc_trace(tf, REG_RR[i], signal_get_name(REG_RR[i].name(), regname.c_str()));
+
+    for (int i = 0; i < PRED_BRANCH_CACHE_SIZE; i++) {
+        std::string cachename = "PRED_BRANCH_CACHE_";
+        cachename += std::to_string(i);
+        sc_trace(tf, pred_branch_cache[i], signal_get_name(pred_branch_cache[i].name(), cachename.c_str()));
     }
+
+
 }
