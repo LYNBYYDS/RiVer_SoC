@@ -6,31 +6,33 @@
 SC_MODULE(pred_branch_cache) {
     
     // Input Port :
-        sc_in<sc_uint<32>> PRED_ADR_BRANCH_CHECK_IN_SD;     // Branch instruction address need to be check in the table if it exist or not
+        sc_in<sc_uint<32>> PRED_BRANCH_CHECK_ADR_IN_SI;     // Branch instruction address need to be check in the table if it exist or not
 
-        
-        sc_in<bool> CMD;                                    // CMD for the write/update it's depends on the signal MISS
-        sc_in<sc_uint<4>> PRED_COUNTER_OUT_SD;              // Branch taken times
-        sc_in<sc_uint<32>> PRED_ADR_TARGET_IN_SD;           // Branch taken target address
-        sc_in<sc_uint<32>> PRED_ADR_BRANCH_WRITE_IN_SD;     // Branch instruction address need to be write into the table 
-        sc_in<sc_uint<2>> PRED_WRITE_INDEX_IN_SD;           // The index where to put the data
+        sc_in<sc_uint<2>> PRED_BRANCH_CMD_IN_SE;            // CMD for the skip(not branch instruction)/write/update it's depends on the signal PRED_BRANCH_MISS_OUT_SI skip = 0 write = 1 update = 2
+        sc_in<sc_uint<32>> PRED_BRANCH_WRITE_ADR_IN_SI;     // Branch instruction address need to be write in the table
+        sc_in<sc_uint<4>> PRED_BRANCH_TARGET_ADR_IN_SE;     // Branch target address
+        sc_in<sc_uint<32>> PRED_BRANCH_CPT_IN_SE;           // Branch taken counter
+        sc_in<sc_uint<32>> PRED_BRANCH_LRU_IN_SE;           // Less Recent Use
+        sc_in<sc_uint<2>> PRED_BRANCH_PNT_IN_SE;            // The index where to put the data
 
     // Output Port :
-        sc_out<bool> PRED_MISS_SP;                          // MISS/HIT for the cache
-        sc_out<sc_uint<4>> PRED_COUNTER_OUT_SP;             // Branch taken times
-        sc_out<sc_uint<4>> PRED_LRU_OUT_SP;                 // Less recent use
-        sc_out<sc_uint<32>> PRED_ADR_TARGET_OUT_SP;         // Branch taken target address
+        sc_out<bool> PRED_BRANCH_MISS_OUT_SP;               // MISS/HIT for the cache MISS = 1 HIT = 0
+        sc_out<sc_uint<4>> PRED_BRANCH_CPT_OUT_SP;          // Branch taken times
+        sc_out<sc_uint<4>> PRED_BRANCH_LRU_OUT_SP;          // Less Recent Use
+        sc_out<sc_uint<32>> PRED_BRANCH_PNT_OUT_SP;         // Branch taken target address
 
     // Global Interface :
         sc_in_clk   CLK;
-        sc_in<bool> RESET;
+        sc_in<bool> RESET_N;
 
     // Cache Content: 
         sc_signal<bool> present[PRED_BRANCH_CACHE_SIZE];                            // Bit of present
         sc_signal<sc_uint<32>> branch_inst_adr[PRED_BRANCH_CACHE_SIZE];             // Branch instruction address
-        sc_signal<sc_uint<32>> branch_success_target_adr[PRED_BRANCH_CACHE_SIZE];   // Branch success target address
+        sc_signal<sc_uint<32>> branch_target_adr[PRED_BRANCH_CACHE_SIZE];           // Branch success target address
         sc_signal<sc_uint<2>> branch_success_time[PRED_BRANCH_CACHE_SIZE];          // Branch success times
-        sc_signal<sc_uint<2>> lru[PRED_BRANCH_CACHE_SIZE];                          // Less recent use
+        sc_signal<bool> lru[PRED_BRANCH_CACHE_SIZE];                                // Less Recent Use
+        sc_signal<bool> inverse_lru;                                                // LRU mechanism tell 0/1 have the less priority, when = 0 then the one have LRU = 0 is less priority otherwise is opposite 
+        sc_signal<sc_uint<2>> p_nb;                                                 // Number of cache case used/(with high priority) if inverse_lru = 0 then is use directly otherwise is 4-p_nb
 
 
     void pred_check();
