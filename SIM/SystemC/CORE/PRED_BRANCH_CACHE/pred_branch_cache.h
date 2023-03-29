@@ -42,10 +42,10 @@ SC_MODULE(pred_branch_cache) {
     SC_CTOR(pred_branch_cache) {
         
         SC_METHOD(pred_check);
-        sensitive << PRED_ADR_BRANCH_IN_SD << RESET;
+        sensitive << PRED_BRANCH_CHECK_ADR_IN_SI << RESET_N;
         for (int i = 0; i < PRED_CACHE_SIZE; i++)
-            sensitive << PRED_VAL[i];
-        SC_CTHREAD(pred_write, reg::CLK.pos());
-        reset_signal_is(RESET, false);
+            sensitive << present[i] << branch_inst_adr[i] << branch_target_adr[i] << branch_success_time[i] << lru[i] << inverse_lru << p_nb;
+        SC_CTHREAD(pred_write, pred_branch_cache::CLK.pos());
+        reset_signal_is(RESET_N, false);
     }
 };
