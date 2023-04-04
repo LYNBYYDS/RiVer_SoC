@@ -21,8 +21,8 @@ int sc_main(int argc, char* argv[]) {
 
     // Output Port
     sc_signal<bool> pred_branch_miss_out;                // MISS/HIT for the cache MISS = 1 HIT = 0
-    sc_signal<sc_uint<4>> pred_branch_cpt_out;           // Branch taken times
-    sc_signal<sc_uint<4>> pred_branch_lru_out;           // Less Recent Use
+    sc_signal<sc_uint<2>> pred_branch_cpt_out;           // Branch taken times
+    sc_signal<bool> pred_branch_lru_out;           // Less Recent Use
     sc_signal<sc_uint<32>> pred_branch_pnt_out;          // Branch taken target address
 
     // Global Interface

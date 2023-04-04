@@ -17,8 +17,8 @@ SC_MODULE(pred_branch_cache) {
 
     // Output Port :
         sc_out<bool> PRED_BRANCH_MISS_OUT_SP;               // MISS/HIT for the cache MISS = 1 HIT = 0
-        sc_out<sc_uint<4>> PRED_BRANCH_CPT_OUT_SP;          // Branch taken times
-        sc_out<sc_uint<4>> PRED_BRANCH_LRU_OUT_SP;          // Less Recent Use
+        sc_out<sc_uint<2>> PRED_BRANCH_CPT_OUT_SP;          // Branch taken times
+        sc_out<bool> PRED_BRANCH_LRU_OUT_SP;          // Less Recent Use
         sc_out<sc_uint<32>> PRED_BRANCH_PNT_OUT_SP;         // Branch taken target address
 
     // Global Interface :
@@ -43,8 +43,9 @@ SC_MODULE(pred_branch_cache) {
         
         SC_METHOD(pred_check);
         sensitive << PRED_BRANCH_CHECK_ADR_IN_SI << RESET_N;
+        sensitive << inverse_lru << p_nb;
         for (int i = 0; i < PRED_CACHE_SIZE; i++)
-            sensitive << present[i] << branch_inst_adr[i] << branch_target_adr[i] << branch_success_time[i] << lru[i] << inverse_lru << p_nb;
+            sensitive << present[i] << branch_inst_adr[i] << branch_target_adr[i] << branch_success_time[i] << lru[i] ;
         SC_CTHREAD(pred_write, pred_branch_cache::CLK.pos());
         reset_signal_is(RESET_N, false);
     }

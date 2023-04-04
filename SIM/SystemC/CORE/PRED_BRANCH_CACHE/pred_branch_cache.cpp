@@ -1,4 +1,4 @@
-#include "pred_cache.h"
+#include "pred_branch_cache.h"
 
 void pred_branch_cache::pred_check() {
     // To pass all the line of cache
@@ -40,7 +40,7 @@ void pred_branch_cache::pred_write() {
     }
 
     p_nb = 0;                                                                       // reset number of case used 
-    inverse_lru = 0                                                                 // reset LRU LRU = 0 means all low priority
+    inverse_lru = 0;                                                                // reset LRU LRU = 0 means all low priority
 
     wait(1);
  
@@ -57,13 +57,14 @@ void pred_branch_cache::pred_write() {
                 branch_target_adr[PRED_BRANCH_PNT_IN_SE.read()].write(PRED_BRANCH_TARGET_ADR_IN_SE.read());
                 branch_success_time[PRED_BRANCH_PNT_IN_SE.read()].write(PRED_BRANCH_CPT_IN_SE.read());          // PRED_BRANCH_CPT_IN_SE is calculer outside the module depends on the brach success or not
                 // lru, inverse_lru and p_nb need to test if the cache is full or not
-                if ((p_nb == 3 && inverse_lru == 0) || (p_nb == 1 && inverse_lru == 1))                         // this is the last case that with low priority and for replace it should choose a case with low priority
+                
+                if ((p_nb.read() == 3 && inverse_lru == 0) || (p_nb.read() == 1 && inverse_lru == 1))                         // this is the last case that with low priority and for replace it should choose a case with low priority
                 {
                     inverse_lru = 1 - inverse_lru;                                                              // change the inverse_lru but dont change the p_nb
                 }
                 else                                                                                            // if is not the last low priority case need to change p_nb and lru
                 {
-                    p_nb ++;
+                    p_nb.write(p_nb.read()+1);
                     lru[PRED_BRANCH_PNT_IN_SE.read()] = 1 - inverse_lru;
                 }
             }
@@ -74,13 +75,13 @@ void pred_branch_cache::pred_write() {
                 branch_success_time[PRED_BRANCH_PNT_IN_SE.read()].write(PRED_BRANCH_CPT_IN_SE.read());          // PRED_BRANCH_CPT_IN_SE is calculer outside the module depends on the brach success or not
                 if (lru[PRED_BRANCH_PNT_IN_SE.read()] == inverse_lru)                                           // case low priority so need to change lru, p_nb and inverse_lru on condition of number of case in high priority
                 {
-                    if ((p_nb == 3 && inverse_lru == 0) || (p_nb == 1 && inverse_lru == 1))                     // this is the last case that with low priority need to change inverse_lru
+                    if ((p_nb.read() == 3 && inverse_lru == 0) || (p_nb.read() == 1 && inverse_lru == 1))                     // this is the last case that with low priority need to change inverse_lru
                     {
                         inverse_lru = 1 - inverse_lru;
                     }
                     else                                                                                        // this is not the last case that with low priority
                     {
-                        p_nb ++;
+                        p_nb.write(p_nb.read()+1);
                         lru[PRED_BRANCH_PNT_IN_SE.read()] = 1 - inverse_lru;
                     }
                 }
@@ -108,13 +109,18 @@ void pred_branch_cache::trace(sc_trace_file* tf) {
     sc_trace(tf, PRED_BRANCH_PNT_OUT_SP, GET_NAME(PRED_BRANCH_PNT_OUT_SP));
     sc_trace(tf, CLK, GET_NAME(CLK));
     sc_trace(tf, RESET_N, GET_NAME(RESET_N));
-    sc_trace(tf, pred_branch_cache_used, GET_NAME(pred_branch_cache_used));
+    sc_trace(tf, inverse_lru, GET_NAME(inverse_lru));
+    sc_trace(tf, p_nb, GET_NAME(p_nb));
 
 
     for (int i = 0; i < PRED_BRANCH_CACHE_SIZE; i++) {
         std::string cachename = "PRED_BRANCH_CACHE_";
         cachename += std::to_string(i);
-        sc_trace(tf, pred_branch_cache[i], signal_get_name(pred_branch_cache[i].name(), cachename.c_str()));
+        sc_trace(tf, present[i], signal_get_name(present[i].name(), cachename.c_str()));
+        sc_trace(tf, branch_inst_adr[i], signal_get_name(branch_inst_adr[i].name(), cachename.c_str()));
+        sc_trace(tf, branch_target_adr[i], signal_get_name(branch_target_adr[i].name(), cachename.c_str()));
+        sc_trace(tf, branch_success_time[i], signal_get_name(branch_success_time[i].name(), cachename.c_str()));
+        sc_trace(tf, lru[i], signal_get_name(lru[i].name(), cachename.c_str()));
     }
 
 

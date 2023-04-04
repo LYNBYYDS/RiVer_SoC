@@ -7,7 +7,7 @@ C_ARGS=-I$(INCLUDE_PATH) -L$(LINK_PATH) -Wl,$(LINKER_ARGS) $(LIBS) -g -DPRED_CAC
 
 all: pred_branch_cache_tb
 
-pred_branch_cache_tb: pred_branch_cache_tb.o pred_branch_cache_tb.o
+pred_branch_cache_tb: pred_branch_cache.o pred_branch_cache_tb.o
 	$(CC) $^ -o $@ $(C_ARGS)
 
 %.o: %.cpp	
