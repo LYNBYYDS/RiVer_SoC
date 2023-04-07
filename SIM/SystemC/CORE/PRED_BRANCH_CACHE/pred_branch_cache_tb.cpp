@@ -14,16 +14,16 @@ int sc_main(int argc, char* argv[]) {
 
     sc_signal<sc_uint<2>> pred_branch_cmd_in;            // CMD for the skip(not branch instruction)/write/update it's depends on the signal PRED_BRANCH_MISS_OUT_SI skip = 0 write = 1 update = 2
     sc_signal<sc_uint<32>> pred_branch_write_adr_in;     // Branch instruction address need to be write in the table
-    sc_signal<sc_uint<4>> pred_branch_target_adr_in;     // Branch target address
-    sc_signal<sc_uint<32>> pred_branch_cpt_in;           // Branch taken counter
-    sc_signal<sc_uint<32>> pred_branch_lru_in;           // Less Recent Use
+    sc_signal<sc_uint<32>> pred_branch_target_adr_in;     // Branch target address
+    sc_signal<sc_uint<2>> pred_branch_cpt_in;           // Branch taken counter
+    sc_signal<bool> pred_branch_lru_in;           // Less Recent Use
     sc_signal<sc_uint<2>> pred_branch_pnt_in;            // The index where to put the data
 
     // Output Port
     sc_signal<bool> pred_branch_miss_out;                // MISS/HIT for the cache MISS = 1 HIT = 0
     sc_signal<sc_uint<2>> pred_branch_cpt_out;           // Branch taken times
     sc_signal<bool> pred_branch_lru_out;           // Less Recent Use
-    sc_signal<sc_uint<32>> pred_branch_pnt_out;          // Branch taken target address
+    sc_signal<sc_uint<2>> pred_branch_pnt_out;          // Branch taken target address
 
     // Global Interface
     sc_clock        clk("clk", 1, SC_NS);
@@ -59,7 +59,48 @@ int sc_main(int argc, char* argv[]) {
     reset_n.write(true);   // end of reset
     cerr << "end of reset" << endl;
 
-    
+    struct branch_instruction{
+        int branch_instruction_adr;
+        int branch_target_adr;
+        int is_taken;
+    };
+
+    bool miss_out;
+    int cpt_out;
+    int is_branch_instruction = rand() % 2;
+    int lru_out;
+    int pnt_out;
+
+    branch_instruction b1;
+    b1.branch_instruction_adr = rand() % 4294967396;
+    b1.branch_target_adr = rand() % 4294967396;
+    b1.is_taken = rand() % 2;
+
+    pred_branch_check_adr_in.write(b1.branch_instruction_adr);
+    pred_branch_cmd_in.write(0b00);
+
+    sc_start(1, SC_NS);
+
+    miss_out = pred_branch_miss_out.read();
+    cpt_out = pred_branch_cpt_out.read();
+    lru_out = pred_branch_lru_out.read();
+    pnt_out = pred_branch_pnt_out.read();
+    int cpt_in = 0b10;
+
+    sc_start(1, SC_NS);
+
+    if (is_branch_instruction)
+    {
+        pred_branch_cmd_in.write(miss_out);
+        pred_branch_write_adr_in.write(b1.branch_instruction_adr);
+        pred_branch_target_adr_in.write(b1.branch_target_adr);
+        pred_branch_cpt_in.write(cpt_in);
+        pred_branch_lru_in.write(lru_out);
+        pred_branch_pnt_in.write(pnt_out);
+    } 
+
+    sc_start(3, SC_NS);
+
     cout << "All tests passed sucessfully" << endl;
     sc_close_vcd_trace_file(tf);
     return 0;

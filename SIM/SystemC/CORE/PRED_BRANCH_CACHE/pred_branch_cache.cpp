@@ -10,7 +10,7 @@ void pred_branch_cache::pred_check() {
         {
             if (PRED_BRANCH_CHECK_ADR_IN_SI.read() == branch_inst_adr[i])           // if the branch instruction is the same as the stored branch instruction
             {// if is the same one 
-                PRED_BRANCH_CPT_OUT_SP.write(branch_success_time[i]);               // counter
+                PRED_BRANCH_CPT_OUT_SP.write(branch_counter[i]);               // counter
                 PRED_BRANCH_LRU_OUT_SP.write(lru[i]);                               // LRU
                 PRED_BRANCH_PNT_OUT_SP.write(i);                                    // write the pointer(index) to tell which case will be change in the exe stage
                 miss = false;
@@ -55,7 +55,7 @@ void pred_branch_cache::pred_write() {
                 // update all the local signal with the input
                 branch_inst_adr[PRED_BRANCH_PNT_IN_SE.read()].write(PRED_BRANCH_WRITE_ADR_IN_SI.read());
                 branch_target_adr[PRED_BRANCH_PNT_IN_SE.read()].write(PRED_BRANCH_TARGET_ADR_IN_SE.read());
-                branch_success_time[PRED_BRANCH_PNT_IN_SE.read()].write(PRED_BRANCH_CPT_IN_SE.read());          // PRED_BRANCH_CPT_IN_SE is calculer outside the module depends on the brach success or not
+                branch_counter[PRED_BRANCH_PNT_IN_SE.read()].write(PRED_BRANCH_CPT_IN_SE.read());          // PRED_BRANCH_CPT_IN_SE is calculer outside the module depends on the brach success or not
                 // lru, inverse_lru and p_nb need to test if the cache is full or not
                 
                 if ((p_nb.read() == 3 && inverse_lru == 0) || (p_nb.read() == 1 && inverse_lru == 1))                         // this is the last case that with low priority and for replace it should choose a case with low priority
@@ -72,7 +72,7 @@ void pred_branch_cache::pred_write() {
             {
                 // update all the local signal with the input
                 // branch instruction adresse and branch target adresse will not change 
-                branch_success_time[PRED_BRANCH_PNT_IN_SE.read()].write(PRED_BRANCH_CPT_IN_SE.read());          // PRED_BRANCH_CPT_IN_SE is calculer outside the module depends on the brach success or not
+                branch_counter[PRED_BRANCH_PNT_IN_SE.read()].write(PRED_BRANCH_CPT_IN_SE.read());          // PRED_BRANCH_CPT_IN_SE is calculer outside the module depends on the brach success or not
                 if (lru[PRED_BRANCH_PNT_IN_SE.read()] == inverse_lru)                                           // case low priority so need to change lru, p_nb and inverse_lru on condition of number of case in high priority
                 {
                     if ((p_nb.read() == 3 && inverse_lru == 0) || (p_nb.read() == 1 && inverse_lru == 1))                     // this is the last case that with low priority need to change inverse_lru
@@ -119,7 +119,7 @@ void pred_branch_cache::trace(sc_trace_file* tf) {
         sc_trace(tf, present[i], signal_get_name(present[i].name(), cachename.c_str()));
         sc_trace(tf, branch_inst_adr[i], signal_get_name(branch_inst_adr[i].name(), cachename.c_str()));
         sc_trace(tf, branch_target_adr[i], signal_get_name(branch_target_adr[i].name(), cachename.c_str()));
-        sc_trace(tf, branch_success_time[i], signal_get_name(branch_success_time[i].name(), cachename.c_str()));
+        sc_trace(tf, branch_counter[i], signal_get_name(branch_counter[i].name(), cachename.c_str()));
         sc_trace(tf, lru[i], signal_get_name(lru[i].name(), cachename.c_str()));
     }
 

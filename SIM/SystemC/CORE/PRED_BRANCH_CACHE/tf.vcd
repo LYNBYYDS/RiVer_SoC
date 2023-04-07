@@ -1,0 +1,148 @@
+$date
+     Apr 06, 2023       18:15:49
+$end
+
+$version
+ SystemC 2.3.3-Accellera --- Feb  4 2023 18:06:46
+$end
+
+$timescale
+     1 ps
+$end
+
+$scope module SystemC $end
+$scope module pred_branch_cache_inst $end
+$var wire    1  aaaaa  inverse_lru       $end
+$var wire    2  aaaab  p_nb [1:0]  $end
+$var wire    1  aaaac  PRED_BRANCH_CACHE_0       $end
+$var wire   32  aaaad  PRED_BRANCH_CACHE_0 [31:0]  $end
+$var wire   32  aaaae  PRED_BRANCH_CACHE_0 [31:0]  $end
+$var wire    2  aaaaf  PRED_BRANCH_CACHE_0 [1:0]  $end
+$var wire    1  aaaag  PRED_BRANCH_CACHE_0       $end
+$var wire    1  aaaah  PRED_BRANCH_CACHE_1       $end
+$var wire   32  aaaai  PRED_BRANCH_CACHE_1 [31:0]  $end
+$var wire   32  aaaaj  PRED_BRANCH_CACHE_1 [31:0]  $end
+$var wire    2  aaaak  PRED_BRANCH_CACHE_1 [1:0]  $end
+$var wire    1  aaaal  PRED_BRANCH_CACHE_1       $end
+$var wire    1  aaaam  PRED_BRANCH_CACHE_2       $end
+$var wire   32  aaaan  PRED_BRANCH_CACHE_2 [31:0]  $end
+$var wire   32  aaaao  PRED_BRANCH_CACHE_2 [31:0]  $end
+$var wire    2  aaaap  PRED_BRANCH_CACHE_2 [1:0]  $end
+$var wire    1  aaaaq  PRED_BRANCH_CACHE_2       $end
+$var wire    1  aaaar  PRED_BRANCH_CACHE_3       $end
+$var wire   32  aaaas  PRED_BRANCH_CACHE_3 [31:0]  $end
+$var wire   32  aaaat  PRED_BRANCH_CACHE_3 [31:0]  $end
+$var wire    2  aaaau  PRED_BRANCH_CACHE_3 [1:0]  $end
+$var wire    1  aaaav  PRED_BRANCH_CACHE_3       $end
+$var wire    1  aaaaw  RESET_N       $end
+$var wire    1  aaaax  CLK       $end
+$var wire    2  aaaay  PRED_BRANCH_PNT_OUT_SP [1:0]  $end
+$var wire    1  aaaaz  PRED_BRANCH_LRU_OUT_SP       $end
+$var wire    2  aaaba  PRED_BRANCH_CPT_OUT_SP [1:0]  $end
+$var wire    1  aaabb  PRED_BRANCH_MISS_OUT_SP       $end
+$var wire    2  aaabc  PRED_BRANCH_PNT_IN_SE [1:0]  $end
+$var wire    1  aaabd  PRED_BRANCH_LRU_IN_SE       $end
+$var wire    2  aaabe  PRED_BRANCH_CPT_IN_SE [1:0]  $end
+$var wire   32  aaabf  PRED_BRANCH_TARGET_ADR_IN_SE [31:0]  $end
+$var wire   32  aaabg  PRED_BRANCH_WRITE_ADR_IN_SI [31:0]  $end
+$var wire    2  aaabh  PRED_BRANCH_CMD_IN_SE [1:0]  $end
+$var wire   32  aaabi  PRED_BRANCH_CHECK_ADR_IN_SI [31:0]  $end
+$upscope $end
+$upscope $end
+$enddefinitions  $end
+
+$comment
+All initial values are dumped below at time 0 sec = 0 timescale units.
+$end
+
+$dumpvars
+0aaaaa
+b0 aaaab
+0aaaac
+b0 aaaad
+b0 aaaae
+b0 aaaaf
+0aaaag
+0aaaah
+b0 aaaai
+b0 aaaaj
+b0 aaaak
+0aaaal
+0aaaam
+b0 aaaan
+b0 aaaao
+b0 aaaap
+0aaaaq
+0aaaar
+b0 aaaas
+b0 aaaat
+b0 aaaau
+0aaaav
+0aaaaw
+1aaaax
+b0 aaaay
+0aaaaz
+b0 aaaba
+1aaabb
+b0 aaabc
+0aaabd
+b0 aaabe
+b0 aaabf
+b0 aaabg
+b0 aaabh
+b0 aaabi
+$end
+
+#500
+0aaaax
+
+#1000
+1aaaax
+
+#1500
+0aaaax
+
+#2000
+1aaaax
+
+#2500
+0aaaax
+
+#3000
+1aaaac
+1aaaaw
+1aaaax
+b110010011110110010001111000110 aaabi
+
+#3500
+0aaaax
+
+#4000
+1aaaax
+
+#4500
+0aaaax
+
+#5000
+1aaaax
+b10 aaabe
+b1100100001111001001100001101001 aaabf
+b110010011110110010001111000110 aaabg
+b1 aaabh
+
+#5500
+0aaaax
+
+#6000
+1aaaax
+
+#6500
+0aaaax
+
+#7000
+1aaaax
+
+#7500
+0aaaax
+
+#8000
