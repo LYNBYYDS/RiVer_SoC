@@ -46,7 +46,7 @@ void pred_branch_cache::pred_write() {
  
     while (1) 
     {
-        if (!PRED_BRANCH_CMD_IN_SE.read())                                                                      // is a branch instruction write or update
+        if ((PRED_BRANCH_CMD_IN_SE.read()) != 0)                                                                      // is a branch instruction write or update
         {
             present[PRED_BRANCH_PNT_IN_SE.read()] = 1;                                                          // no matter write or update rewrite the present bit to 1
 
@@ -113,14 +113,14 @@ void pred_branch_cache::trace(sc_trace_file* tf) {
     sc_trace(tf, p_nb, GET_NAME(p_nb));
 
 
-    for (int i = 0; i < PRED_BRANCH_CACHE_SIZE; i++) {
-        std::string cachename = "PRED_BRANCH_CACHE_";
-        cachename += std::to_string(i);
-        sc_trace(tf, present[i], signal_get_name(present[i].name(), cachename.c_str()));
-        sc_trace(tf, branch_inst_adr[i], signal_get_name(branch_inst_adr[i].name(), cachename.c_str()));
-        sc_trace(tf, branch_target_adr[i], signal_get_name(branch_target_adr[i].name(), cachename.c_str()));
-        sc_trace(tf, branch_counter[i], signal_get_name(branch_counter[i].name(), cachename.c_str()));
-        sc_trace(tf, lru[i], signal_get_name(lru[i].name(), cachename.c_str()));
+    for (int x = 0; x < PRED_BRANCH_CACHE_SIZE; x++) {
+        //std::string cachename = "PRED_BRANCH_CACHE_";
+        //cachename += std::to_string(i);
+        sc_trace(tf, present[x], signal_get_name(present[x].name(), "present"));
+        sc_trace(tf, branch_inst_adr[x], signal_get_name(branch_inst_adr[x].name(), "branch_inst_adr"));
+        sc_trace(tf, branch_target_adr[x], signal_get_name(branch_target_adr[x].name(), "branch_target_adr"));
+        sc_trace(tf, branch_counter[x], signal_get_name(branch_counter[x].name(), "branch_counter"));
+        sc_trace(tf, lru[x], signal_get_name(lru[x].name(), "lru"));
     }
 
 

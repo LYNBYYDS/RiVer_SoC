@@ -1,5 +1,5 @@
 $date
-     Apr 06, 2023       18:15:49
+     Apr 12, 2023       11:23:07
 $end
 
 $version
@@ -14,26 +14,26 @@ $scope module SystemC $end
 $scope module pred_branch_cache_inst $end
 $var wire    1  aaaaa  inverse_lru       $end
 $var wire    2  aaaab  p_nb [1:0]  $end
-$var wire    1  aaaac  PRED_BRANCH_CACHE_0       $end
-$var wire   32  aaaad  PRED_BRANCH_CACHE_0 [31:0]  $end
-$var wire   32  aaaae  PRED_BRANCH_CACHE_0 [31:0]  $end
-$var wire    2  aaaaf  PRED_BRANCH_CACHE_0 [1:0]  $end
-$var wire    1  aaaag  PRED_BRANCH_CACHE_0       $end
-$var wire    1  aaaah  PRED_BRANCH_CACHE_1       $end
-$var wire   32  aaaai  PRED_BRANCH_CACHE_1 [31:0]  $end
-$var wire   32  aaaaj  PRED_BRANCH_CACHE_1 [31:0]  $end
-$var wire    2  aaaak  PRED_BRANCH_CACHE_1 [1:0]  $end
-$var wire    1  aaaal  PRED_BRANCH_CACHE_1       $end
-$var wire    1  aaaam  PRED_BRANCH_CACHE_2       $end
-$var wire   32  aaaan  PRED_BRANCH_CACHE_2 [31:0]  $end
-$var wire   32  aaaao  PRED_BRANCH_CACHE_2 [31:0]  $end
-$var wire    2  aaaap  PRED_BRANCH_CACHE_2 [1:0]  $end
-$var wire    1  aaaaq  PRED_BRANCH_CACHE_2       $end
-$var wire    1  aaaar  PRED_BRANCH_CACHE_3       $end
-$var wire   32  aaaas  PRED_BRANCH_CACHE_3 [31:0]  $end
-$var wire   32  aaaat  PRED_BRANCH_CACHE_3 [31:0]  $end
-$var wire    2  aaaau  PRED_BRANCH_CACHE_3 [1:0]  $end
-$var wire    1  aaaav  PRED_BRANCH_CACHE_3       $end
+$var wire    1  aaaac  present       $end
+$var wire   32  aaaad  branch_inst_adr [31:0]  $end
+$var wire   32  aaaae  branch_target_adr [31:0]  $end
+$var wire    2  aaaaf  branch_counter [1:0]  $end
+$var wire    1  aaaag  lru       $end
+$var wire    1  aaaah  present       $end
+$var wire   32  aaaai  branch_inst_adr [31:0]  $end
+$var wire   32  aaaaj  branch_target_adr [31:0]  $end
+$var wire    2  aaaak  branch_counter [1:0]  $end
+$var wire    1  aaaal  lru       $end
+$var wire    1  aaaam  present       $end
+$var wire   32  aaaan  branch_inst_adr [31:0]  $end
+$var wire   32  aaaao  branch_target_adr [31:0]  $end
+$var wire    2  aaaap  branch_counter [1:0]  $end
+$var wire    1  aaaaq  lru       $end
+$var wire    1  aaaar  present       $end
+$var wire   32  aaaas  branch_inst_adr [31:0]  $end
+$var wire   32  aaaat  branch_target_adr [31:0]  $end
+$var wire    2  aaaau  branch_counter [1:0]  $end
+$var wire    1  aaaav  lru       $end
 $var wire    1  aaaaw  RESET_N       $end
 $var wire    1  aaaax  CLK       $end
 $var wire    2  aaaay  PRED_BRANCH_PNT_OUT_SP [1:0]  $end
@@ -109,40 +109,61 @@ $end
 0aaaax
 
 #3000
+b1 aaaab
 1aaaac
+1aaaag
 1aaaaw
 1aaaax
-b110010011110110010001111000110 aaabi
+b1 aaabh
+b1101011100010110100010101100111 aaabi
 
 #3500
 0aaaax
 
 #4000
+b10 aaaab
 1aaaax
 
 #4500
 0aaaax
 
 #5000
+b11 aaaab
 1aaaax
-b10 aaabe
-b1100100001111001001100001101001 aaabf
-b110010011110110010001111000110 aaabg
-b1 aaabh
 
 #5500
 0aaaax
 
 #6000
+1aaaaa
+b1101011100010110100010101100111 aaaad
+b110010011110110010001111000110 aaaae
+b1 aaaaf
 1aaaax
+1aaaaz
+b1 aaaba
+0aaabb
+b1 aaabe
+b110010011110110010001111000110 aaabf
+b1101011100010110100010101100111 aaabg
 
 #6500
 0aaaax
 
 #7000
+b0 aaaab
+0aaaag
 1aaaax
+0aaaaz
 
 #7500
 0aaaax
 
 #8000
+b1 aaaab
+1aaaax
+
+#8500
+0aaaax
+
+#9000

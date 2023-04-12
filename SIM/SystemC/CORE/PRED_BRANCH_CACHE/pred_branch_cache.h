@@ -44,7 +44,7 @@ SC_MODULE(pred_branch_cache) {
         SC_METHOD(pred_check);
         sensitive << PRED_BRANCH_CHECK_ADR_IN_SI << RESET_N;
         sensitive << inverse_lru << p_nb;
-        for (int i = 0; i < PRED_CACHE_SIZE; i++)
+        for (int i = 0; i < PRED_BRANCH_CACHE_SIZE; i++)
             sensitive << present[i] << branch_inst_adr[i] << branch_target_adr[i] << branch_counter[i] << lru[i] ;
         SC_CTHREAD(pred_write, pred_branch_cache::CLK.pos());
         reset_signal_is(RESET_N, false);

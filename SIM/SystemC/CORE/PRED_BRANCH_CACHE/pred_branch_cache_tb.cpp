@@ -67,7 +67,7 @@ int sc_main(int argc, char* argv[]) {
 
     bool miss_out;
     int cpt_out;
-    int is_branch_instruction = rand() % 2;
+    int is_branch_instruction = 1;
     int lru_out;
     int pnt_out;
 
@@ -77,7 +77,7 @@ int sc_main(int argc, char* argv[]) {
     b1.is_taken = rand() % 2;
 
     pred_branch_check_adr_in.write(b1.branch_instruction_adr);
-    pred_branch_cmd_in.write(0b00);
+    pred_branch_cmd_in.write(1);
 
     sc_start(1, SC_NS);
 
@@ -87,17 +87,16 @@ int sc_main(int argc, char* argv[]) {
     pnt_out = pred_branch_pnt_out.read();
     int cpt_in = 0b10;
 
-    sc_start(1, SC_NS);
+    int cmd_in = 1;
 
-    if (is_branch_instruction)
-    {
-        pred_branch_cmd_in.write(miss_out);
-        pred_branch_write_adr_in.write(b1.branch_instruction_adr);
-        pred_branch_target_adr_in.write(b1.branch_target_adr);
-        pred_branch_cpt_in.write(cpt_in);
-        pred_branch_lru_in.write(lru_out);
-        pred_branch_pnt_in.write(pnt_out);
-    } 
+    sc_start(2, SC_NS);
+
+    pred_branch_cmd_in.write(1);
+    pred_branch_write_adr_in.write(b1.branch_instruction_adr);
+    pred_branch_target_adr_in.write(b1.branch_target_adr);
+    pred_branch_cpt_in.write(1);
+    pred_branch_lru_in.write(lru_out);
+    pred_branch_pnt_in.write(pnt_out);
 
     sc_start(3, SC_NS);
 
