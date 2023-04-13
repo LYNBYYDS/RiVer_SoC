@@ -10,8 +10,8 @@ SC_MODULE(icache)
     sc_in<bool> RESET_N;
 
     // interface processeur
-    sc_in<sc_uint<32> > ADR_SI ; 
-    sc_in<bool> ADR_VALID_SI ; 
+    sc_in<sc_uint<32> > PC_SI ; 
+    sc_in<bool> PC_VALID_SI ; 
 
     sc_out<sc_bv<32> > IC_INST_SI ;
     sc_out<bool> IC_STALL_SI ;
@@ -45,7 +45,7 @@ SC_MODULE(icache)
     SC_CTOR(icache)
     {
         SC_METHOD(parse_adr);
-        sensitive << ADR_SI; 
+        sensitive << PC_SI; 
 
         SC_METHOD(miss_detection);
         sensitive   << address_tag 

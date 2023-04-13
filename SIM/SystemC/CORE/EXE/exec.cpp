@@ -499,7 +499,7 @@ void exec::trace(sc_trace_file* tf) {
     
     alu_inst.trace(tf);
     shifter_inst.trace(tf);
-    fifo_inst.trace(tf);
+    fifo_if2dec.trace(tf);
 }
 
 // 0000010000101100010001100011011

@@ -164,7 +164,7 @@ SC_MODULE(exec) {
 
     alu     alu_inst;
     shifter shifter_inst;
-    fifo<exe2mem_size> fifo_inst;
+    fifo<exe2mem_size> fifo_if2dec;
 
     void preprocess_op();    // send op2 or ~op2 in ALU_IN_OP2
     void select_exec_res();  // setup FFIN_EXE_RES as ALU_OUT or SHIFTER_OUT
@@ -181,7 +181,7 @@ SC_MODULE(exec) {
     SC_CTOR(exec)
         : alu_inst("alu"),
           shifter_inst("shifter"),
-          fifo_inst("exe2mem") {
+          fifo_if2dec("exe2mem") {
         // ALU port map :
 
         alu_inst.OP1_SE(op1_se);
@@ -199,14 +199,14 @@ SC_MODULE(exec) {
 
         // fifo port map
 
-        fifo_inst.DIN_S(exe2mem_din_se);
-        fifo_inst.DOUT_R(exe2mem_dout_se);
-        fifo_inst.EMPTY_S(EXE2MEM_EMPTY_SE);
-        fifo_inst.FULL_S(exe2mem_full_se);
-        fifo_inst.PUSH_S(exe2mem_push_se);
-        fifo_inst.POP_S(EXE2MEM_POP_SM);
-        fifo_inst.CLK(CLK);
-        fifo_inst.RESET_N(RESET);
+        fifo_if2dec.DIN_S(exe2mem_din_se);
+        fifo_if2dec.DOUT_R(exe2mem_dout_se);
+        fifo_if2dec.EMPTY_S(EXE2MEM_EMPTY_SE);
+        fifo_if2dec.FULL_S(exe2mem_full_se);
+        fifo_if2dec.PUSH_S(exe2mem_push_se);
+        fifo_if2dec.POP_S(EXE2MEM_POP_SM);
+        fifo_if2dec.CLK(CLK);
+        fifo_if2dec.RESET_N(RESET);
 
         SC_METHOD(preprocess_op);
         sensitive << op1_se << NEG_OP2_RD << op2_se;

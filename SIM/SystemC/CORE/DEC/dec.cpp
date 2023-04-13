@@ -1030,7 +1030,7 @@ void decod::pc_inc() {
         {
             if (PRED_TAKEN_RI.read() && stall_sd && !(PRED_SUCCESS_RD.read() || PRED_FAILED_RD.read())) 
             {
-                pc_out = PRED_ADR_RI.read() + 4;
+                pc_out = PRED_BRANCH_ADR_RI.read() + 4;
             }
             else if (PRED_TAKEN_RI.read() && !stall_sd) 
             {
@@ -1055,7 +1055,7 @@ void decod::pc_inc() {
         } 
         else if (add_offset_to_pc && !dec2if_full_sd && !stall_sd) 
         {
-            pc_out = PRED_TAKEN_RI.read() ? PRED_ADR_RI.read() + 4 : PC_IF2DEC_RI.read() + offset_branch_var;
+            pc_out = PRED_TAKEN_RI.read() ? PRED_BRANCH_ADR_RI.read() + 4 : PC_IF2DEC_RI.read() + offset_branch_var;
             WRITE_PC_ENABLE_SD = 1;
             dec2if_push_sd     = 1;
 
@@ -1251,7 +1251,7 @@ void decod::stall_method() {
 }
 
 void decod::pred_reg_data() {
-    PRED_ADR_SD.write(PRED_ADR_RI.read());
+    PRED_ADR_SD.write(PRED_BRANCH_ADR_RI.read());
     PRED_TAKEN_SD.write(PRED_TAKEN_RI.read());
 }
 
@@ -1327,7 +1327,7 @@ void decod::trace(sc_trace_file* tf) {
     sc_trace(tf, IF2DEC_FLUSH_SD, GET_NAME(IF2DEC_FLUSH_SD));
     sc_trace(tf, dec2if_out_sd, GET_NAME(dec2if_out_sd));  // this value must also be sent to REG
     sc_trace(tf, PRED_TAKEN_RI, GET_NAME(PRED_TAKEN_RI));
-    sc_trace(tf, PRED_ADR_RI, GET_NAME(PRED_ADR_RI));
+    sc_trace(tf, PRED_BRANCH_ADR_RI, GET_NAME(PRED_BRANCH_ADR_RI));
 
     // Interface with DEC2EXE
 

@@ -541,5 +541,5 @@ void mem::trace(sc_trace_file* tf) {
     sc_trace(tf, STORE_ACCESS_FAULT_RE, GET_NAME(STORE_ACCESS_FAULT_RE));
     sc_trace(tf, STORE_ADRESS_MISSALIGNED_RE, GET_NAME(STORE_ADRESS_MISSALIGNED_RE));
     sc_trace(tf, INSTRUCTION_ACCESS_FAULT_RE, GET_NAME(INSTRUCTION_ACCESS_FAULT_RE));
-    fifo_inst.trace(tf);
+    fifo_if2dec.trace(tf);
 }

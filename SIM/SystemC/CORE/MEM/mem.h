@@ -132,7 +132,7 @@ SC_MODULE(mem) {
     sc_signal<bool>        mret_sm;
 
     // FIFO
-    fifo<mem2wbk_size> fifo_inst;
+    fifo<mem2wbk_size> fifo_if2dec;
 
     void mem2wbk_concat();
     void mem2wbk_unconcat();
@@ -143,15 +143,15 @@ SC_MODULE(mem) {
     void csr_exception();
     void trace(sc_trace_file * tf);
 
-    SC_CTOR(mem) : fifo_inst("mem2wbk") {
-        fifo_inst.DIN_S(mem2wbk_din_sm);
-        fifo_inst.DOUT_R(mem2wbk_dout_sm);
-        fifo_inst.EMPTY_S(MEM2WBK_EMPTY_SM);
-        fifo_inst.FULL_S(mem2wbk_full_sm);
-        fifo_inst.PUSH_S(mem2wbk_push_sm);
-        fifo_inst.POP_S(MEM2WBK_POP_SW);
-        fifo_inst.CLK(CLK);
-        fifo_inst.RESET_N(RESET);
+    SC_CTOR(mem) : fifo_if2dec("mem2wbk") {
+        fifo_if2dec.DIN_S(mem2wbk_din_sm);
+        fifo_if2dec.DOUT_R(mem2wbk_dout_sm);
+        fifo_if2dec.EMPTY_S(MEM2WBK_EMPTY_SM);
+        fifo_if2dec.FULL_S(mem2wbk_full_sm);
+        fifo_if2dec.PUSH_S(mem2wbk_push_sm);
+        fifo_if2dec.POP_S(MEM2WBK_POP_SW);
+        fifo_if2dec.CLK(CLK);
+        fifo_if2dec.RESET_N(RESET);
 
         SC_METHOD(mem2wbk_concat);
         sensitive << data_sm << DEST_RE << wb_sm << CSR_WENABLE_RE << CSR_RDATA_RE << exception_sm << mret_sm

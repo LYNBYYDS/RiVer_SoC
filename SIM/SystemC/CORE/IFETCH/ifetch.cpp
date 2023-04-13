@@ -2,66 +2,83 @@
 
 void ifetch::fetch_method() {
     sc_bv<if2dec_size> if2dec_in_var;
-    sc_bv<if2dec_size> instr_ri_var = instr_ri.read();
+    sc_bv<if2dec_size> if2dec_out_var = if2dec_out.read();
     if (EXCEPTION_SM.read() == 0) {
-        if (PRED_TAKEN_SD.read() && !PRED_FAILED_RD.read()) {
-            ADR_SI.write(PRED_ADR_SD.read());
+
+        // if the branch is taken and branch is in the pred branch cache then give the icache the target instruction address otherwise give the next instruction address
+        if (PRED_BRANCH_MISS_OUT_SP.read() && pb_taken.read()) { 
+            PC_SI.write(PRED_BRANCH_TARGET_ADR_OUT_SP.read());
         } else {
-            ADR_SI.write(PC_RD.read());
+            PC_SI.write(PC_RD.read());
         }
 
-        // data sent in if2dec
-        if2dec_in_var[96]           = PRED_ADR_TAKEN_SI.read();
-        if2dec_in_var.range(95, 64) = PRED_NEXT_ADR_SI.read();
-        if2dec_in_var.range(63, 32) = (sc_bv_base)INST_SIC.read();
-        if2dec_in_var.range(31, 0) =
-            (PRED_TAKEN_SD.read() && !PRED_FAILED_RD.read()) ? PRED_ADR_SD.read() : PC_RD.read();
-        if2dec_in_si.write(if2dec_in_var);
+        //Input of IF2DEC fifo
+            // variable internal to charge all information need to pass through IF2DEC fifo
+            if2dec_in_var.range(101, 100)   =   (sc_bv_base)PRED_BRANCH_PNT_OUT_SP.read();
+            if2dec_in_var.range(99, 98)     =   (sc_bv_base)PRED_BRANCH_CPT_OUT_SP.read();
+            if2dec_in_var[97]               =   PRED_BRANCH_LRU_OUT_SP.read();
+            if2dec_in_var.range(96, 65)     =   (sc_bv_base)PRED_BRANCH_TARGET_ADR_OUT_SP.read();
+            if2dec_in_var[64]               =   PRED_BRANCH_MISS_OUT_SP.read();
+            if2dec_in_var.range(63, 32)     =   (sc_bv_base)INST_SIC.read();
+            if2dec_in_var.range(31, 0)      =   (pb_taken.read() && PRED_BRANCH_MISS_OUT_SP.read()) ? (sc_bv_base)PRED_BRANCH_TARGET_ADR_OUT_SP.read() : (sc_bv_base)PC_RD.read();
 
-        // data coming out from if2dec :
-        PRED_TAKEN_RI.write((bool)instr_ri_var[96]);
-        PRED_ADR_RI.write((sc_bv_base)instr_ri_var.range(95, 64));
-        INSTR_RI.write((sc_bv_base)instr_ri_var.range(63, 32));
-        PC_IF2DEC_RI.write((sc_bv_base)instr_ri_var.range(31, 0));
-        if (IF2DEC_FLUSH_SD.read()) {
-            IF2DEC_PUSH_SI.write(false);
-            DEC2IF_POP_SI.write(true);
-            ADR_VALID_SI.write(false);
-        } else {
-            // stall if the memory stalls, if we can't push to dec, or have no value
-            // of pc to pop from dec
-            bool stall = STALL_SIC.read() || IF2DEC_FULL_SI.read() || DEC2IF_EMPTY_SI.read();
-            IF2DEC_PUSH_SI.write(!stall);
-            DEC2IF_POP_SI.write(!stall);
-            ADR_VALID_SI.write(!DEC2IF_EMPTY_SI.read());
-        }
+            // charge the value to type sc_signal
+            if2dec_in.write(if2dec_in_var);
+
+        // Output of IF2DEC fifo
+            PRED_TAKEN_RI.write((bool)if2dec_out_var[96]);
+            PRED_BRANCH_ADR_RI.write((sc_bv_base)if2dec_out_var.range(95, 64));
+            INSTR_RI.write((sc_bv_base)if2dec_out_var.range(63, 32));
+            PC_IF2DEC_RI.write((sc_bv_base)if2dec_out_var.range(31, 0));
+            
+            if (IF2DEC_FLUSH_SD.read()) 
+            {
+                if2dec_push.write(false);
+                DEC2IF_POP_SI.write(true);
+                PC_VALID_SI.write(false);
+            } 
+            else 
+            {
+                /* stall if :
+                    the memory stalls
+                    can't push to if2dec
+                    dont have PC to pop from dec2if
+                */
+                bool stall = STALL_SIC.read() || if2dec_full.read() || DEC2IF_EMPTY_SI.read();
+                if2dec_push.write(!stall);
+                DEC2IF_POP_SI.write(!stall);
+                PC_VALID_SI.write(!DEC2IF_EMPTY_SI.read());
+            }
 
     } else {
         // data sent in if2dec
         // If an exception is detected
         // Pipeline pass in M-mode
         // Fifo send nop instruction
-        if2dec_in_var[96]           = PRED_ADR_TAKEN_SI.read();
-        if2dec_in_var.range(95, 64) = PRED_NEXT_ADR_SI.read();
+        if2dec_in_var.range(101, 64) = 0;
         if2dec_in_var.range(63, 32) = nop_encoding;
-        if2dec_in_var.range(31, 0) =
-            (PRED_TAKEN_SD.read() && !PRED_FAILED_RD.read()) ? PRED_ADR_SD.read() : PC_RD.read();
-        if (PRED_TAKEN_SD.read() && !PRED_FAILED_RD.read()) {
-            ADR_SI.write(PRED_ADR_SD.read());
+        if2dec_in_var.range(31, 0) = (pb_taken.read() && PRED_BRANCH_MISS_OUT_SP.read()) ? (sc_bv_base)PRED_BRANCH_TARGET_ADR_OUT_SP.read() : (sc_bv_base)PC_RD.read();
+
+        if (pb_taken.read() && PRED_BRANCH_MISS_OUT_SP.read()) {
+            PC_SI.write(PRED_BRANCH_TARGET_ADR_OUT_SP.read());
         } else {
-            ADR_SI.write(PC_RD.read());
+            PC_SI.write(PC_RD.read());
         }
 
-        if2dec_in_si.write(if2dec_in_var);
+        if2dec_in.write(if2dec_in_var);
 
         // data coming out from if2dec :
-        PRED_TAKEN_RI.write((bool)instr_ri_var[96]);
-        PRED_ADR_RI.write((sc_bv_base)instr_ri_var.range(95, 64));
-        INSTR_RI.write((sc_bv_base)instr_ri_var.range(63, 32));
-        PC_IF2DEC_RI.write((sc_bv_base)instr_ri_var.range(31, 0));
-        IF2DEC_PUSH_SI.write(true);
+        if2dec_in_var.range(101, 100)   =   (sc_bv_base)PRED_BRANCH_PNT_OUT_SP.read();
+        if2dec_in_var.range(99, 98)     =   (sc_bv_base)PRED_BRANCH_CPT_OUT_SP.read();
+        if2dec_in_var[97]               =   PRED_BRANCH_LRU_OUT_SP.read();
+        if2dec_in_var.range(96, 65)     =   (sc_bv_base)PRED_BRANCH_TARGET_ADR_OUT_SP.read();
+        if2dec_in_var[64]               =   PRED_BRANCH_MISS_OUT_SP.read();
+        if2dec_in_var.range(63, 32)     =   (sc_bv_base)INST_SIC.read();
+        if2dec_in_var.range(31, 0)      =   (pb_taken.read() && PRED_BRANCH_MISS_OUT_SP.read()) ? (sc_bv_base)PRED_BRANCH_TARGET_ADR_OUT_SP.read() : (sc_bv_base)PC_RD.read();
+        if2dec_push.write(true);
+
         DEC2IF_POP_SI.write(true);
-        ADR_VALID_SI.write(false);
+        PC_VALID_SI.write(false);
     }
 }
 
@@ -70,157 +87,26 @@ void ifetch::exception()
 {
     EXCEPTION_RI.write(0);
 }
-void ifetch::write_pred_reg() {
-    int index = 0;
-    if (INSTR_IS_BRANCH_RD.read() && !IF2DEC_EMPTY_SI.read()) {
-        bool found = false;
-        for (int i = 0; i < predictor_register_size; ++i) {
-            if (BRANCH_ADR_REG[i] == BRANCH_INST_ADR_RD.read()) {
-                found = true;
-                index = i;
-                break;
-            }
-        }
-        if (!found) {
-            BRANCH_ADR_REG[pred_write_pointer_si.read()]    = BRANCH_INST_ADR_RD.read();
-            PREDICTED_ADR_REG[pred_write_pointer_si.read()] = BRANCH_TARGET_ADR_RD.read();
-            PRED_STATE_REG[pred_write_pointer_si.read()]    = weakly_taken;
-            VALID_PRED_REG[pred_write_pointer_si.read()]    = true;
-            sc_uint<size_of_pred_pointer> pointer           = pred_write_pointer_si.read();
-            pred_write_pointer_si                           = pred_write_pointer_si.read() + 1;
-        } else {
-            PRED_STATE_REG[index] = next_state_pred_si;
-        }
-    }
-}
 
-
-// ---------------------------------------------
-//            BRANCH PREDICTION GESTION
-// ---------------------------------------------
-void ifetch::read_pred_reg() {
-    bool found = false;
-    for (int i = 0; i < predictor_register_size; ++i) {
-        if (BRANCH_ADR_REG[i].read() == PC_RD.read() && VALID_PRED_REG[i].read() && !EXCEPTION_SM && !DEC2IF_EMPTY_SI) {
-#ifdef BRANCH_PREDICTION
-            found = true;
-#endif
-            pred_branch_next_adr_si = PREDICTED_ADR_REG[i];
-            pred_branch_taken_si =
-                (bool)(PRED_STATE_REG[i].read() == strongly_taken) || (PRED_STATE_REG[i].read() == weakly_taken);
-            break;
-        }
-    }
-    if (!found) { pred_branch_taken_si = false; }
-}
-void ifetch::calc_prob_pred() {
-    for (int i = 0; i < predictor_register_size; ++i) {
-        if (BRANCH_ADR_REG[i].read() & BRANCH_INST_ADR_RD.read()) {
-            switch (PRED_STATE_REG[i].read()) {
-                case strongly_taken: next_state_pred_si = PRED_SUCCESS_RD.read() ? strongly_taken : weakly_taken; break;
-                case weakly_taken:
-                    next_state_pred_si = PRED_SUCCESS_RD.read() ? strongly_taken : weakly_not_taken;
-                    break;
-                case weakly_not_taken:
-                    next_state_pred_si = PRED_SUCCESS_RD.read() ? weakly_taken : strongly_not_taken;
-                    break;
-                case strongly_not_taken:
-                    next_state_pred_si = PRED_SUCCESS_RD.read() ? weakly_not_taken : strongly_not_taken;
-                    break;
-            }
-            break;
-        }
-    }
-}
-void ifetch::write_pred_ret_reg() {
-    bool found = false;
-    if (RET_INST_RD.read() && !IF2DEC_EMPTY_SI.read()) {
-        for (int i = 0; i < ret_predictor_register_size; ++i) {
-            if (RET_ADR_RI[i] == BRANCH_INST_ADR_RD.read()) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            RET_ADR_RI[ret_write_pointer_si.read()]    = BRANCH_INST_ADR_RD.read();
-            VALID_RET_REG[ret_write_pointer_si.read()] = true;
-            ret_write_pointer_si                       = ret_write_pointer_si.read() << 1;
-        }
-    }
-}
-void ifetch::ret_stack() {
-    if (!RESET) {
-        ret_stack_pointer_si = 1;
-        pred_ret_taken_si    = false;
-    } else {
-        bool found = false;
-        for (int i = 0; i < ret_predictor_register_size; ++i) {
-            if (RET_ADR_RI[i].read() == PC_RD.read() && VALID_RET_REG[i].read()) {
-#ifdef RET_BRANCH_PREDICTION
-                found = true;
-#endif
-                break;
-            }
-        }
-        pred_ret_taken_si = found;
-
-        sc_uint<ret_stack_size> ras_temp   = ret_stack_pointer_si.read();
-        bool                    adr_pushed = false;
-        if (!IF2DEC_EMPTY_SI.read()) {
-            if (PUSH_ADR_RAS_RD.read()) {
-                // ret inst found on decod stage => pop @
-                for (int i = 0; i < ret_stack_size; i++)
-                    if (ras_temp[i]) {
-                        RET_STACK_RI[i] = RETURN_ADR_RD.read();
-                        adr_pushed      = true;
-                    }
-
-                ras_temp = ras_temp << 1;
-
-            } else if (POP_ADR_RAS_RD.read()) {
-                // push valid adr to ret on stack
-                ras_temp = ras_temp >> 1;
-            }
-
-            if (found) {
-                // pc@ == ret inst => pop @ to ret
-                for (int i = 0; i < ret_stack_size - 1; i++) {
-                    if (ras_temp[i + 1]) { pred_ret_next_adr_si = adr_pushed ? RETURN_ADR_RD.read() : RET_STACK_RI[i]; }
-                }
-                ras_temp = ras_temp >> 1;
-            }
-        }
-        ret_stack_pointer_si = ras_temp;
-    }
-}
-
-void ifetch::next_pred_adr() {
-    if (pred_branch_taken_si)
-        PRED_NEXT_ADR_SI.write(pred_branch_next_adr_si);
-    else if (pred_ret_taken_si)
-        PRED_NEXT_ADR_SI.write(pred_ret_next_adr_si);
-
-    PRED_ADR_TAKEN_SI = pred_branch_taken_si | pred_ret_taken_si;
-}
 void ifetch::trace(sc_trace_file* tf) {
-    sc_trace(tf, ADR_SI, GET_NAME(ADR_SI));
-    sc_trace(tf, ADR_VALID_SI, GET_NAME(ADR_VALID_SI));
+    sc_trace(tf, PC_SI, GET_NAME(PC_SI));
+    sc_trace(tf, PC_VALID_SI, GET_NAME(PC_VALID_SI));
     sc_trace(tf, INST_SIC, GET_NAME(INST_SIC));
     sc_trace(tf, STALL_SIC, GET_NAME(STALL_SIC));
     sc_trace(tf, DEC2IF_EMPTY_SI, GET_NAME(DEC2IF_EMPTY_SI));
     sc_trace(tf, DEC2IF_POP_SI, GET_NAME(DEC2IF_POP_SI));
     sc_trace(tf, IF2DEC_FLUSH_SD, GET_NAME(IF2DEC_FLUSH_SD));
     sc_trace(tf, IF2DEC_POP_SD, GET_NAME(IF2DEC_POP_SD));
-    sc_trace(tf, IF2DEC_PUSH_SI, GET_NAME(IF2DEC_PUSH_SI));
-    sc_trace(tf, IF2DEC_FULL_SI, GET_NAME(IF2DEC_FULL_SI));
+    sc_trace(tf, if2dec_push, GET_NAME(if2dec_push));
+    sc_trace(tf, if2dec_full, GET_NAME(if2dec_full));
     sc_trace(tf, IF2DEC_EMPTY_SI, GET_NAME(IF2DEC_EMPTY_SI));
     sc_trace(tf, PC_RD, GET_NAME(PC_RD));
     sc_trace(tf, INSTR_RI, GET_NAME(INSTR_RI));
     sc_trace(tf, PC_IF2DEC_RI, GET_NAME(PC_IF2DEC_RI));
     sc_trace(tf, CLK, GET_NAME(CLK));
     sc_trace(tf, RESET, GET_NAME(RESET));
-    sc_trace(tf, if2dec_in_si, GET_NAME(if2dec_in_si));
-    sc_trace(tf, instr_ri, GET_NAME(instr_ri));
+    sc_trace(tf, if2dec_in, GET_NAME(if2dec_in));
+    sc_trace(tf, if2dec_out, GET_NAME(if2dec_out));
     sc_trace(tf, EXCEPTION_RI, GET_NAME(EXCEPTION_RI));
     sc_trace(tf, EXCEPTION_SM, GET_NAME(EXCEPTION_SM));
     sc_trace(tf, INTERRUPTION_SE, GET_NAME(INTERRUPTION_SE));
@@ -228,7 +114,7 @@ void ifetch::trace(sc_trace_file* tf) {
     sc_trace(tf, INSTR_IS_BRANCH_RD, GET_NAME(INSTR_IS_BRANCH_RD));
     sc_trace(tf, BRANCH_INST_ADR_RD, GET_NAME(BRANCH_INST_ADR_RD));
     sc_trace(tf, BRANCH_TARGET_ADR_RD, GET_NAME(BRANCH_TARGET_ADR_RD));
-    sc_trace(tf, PRED_ADR_RI, GET_NAME(PRED_ADR_RI));
+    sc_trace(tf, PRED_BRANCH_ADR_RI, GET_NAME(PRED_BRANCH_ADR_RI));
     sc_trace(tf, PRED_TAKEN_RI, GET_NAME(PRED_TAKEN_RI));
     sc_trace(tf, PRED_NEXT_ADR_SI, GET_NAME(PRED_NEXT_ADR_SI));
     sc_trace(tf, PRED_ADR_TAKEN_SI, GET_NAME(PRED_ADR_TAKEN_SI));
@@ -273,5 +159,5 @@ void ifetch::trace(sc_trace_file* tf) {
     sc_trace(tf, pred_ret_next_adr_si, GET_NAME(pred_ret_next_adr_si));
     sc_trace(tf, pred_branch_next_adr_si, GET_NAME(pred_branch_next_adr_si));
 
-    fifo_inst.trace(tf);
+    fifo_if2dec.trace(tf);
 }

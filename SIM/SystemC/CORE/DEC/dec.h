@@ -73,7 +73,7 @@ SC_MODULE(decod) {
     sc_in<sc_bv<32>>              INSTR_RI;
     sc_in<bool>                   IF2DEC_EMPTY_SI;
 
-    sc_in<sc_uint<32>>            PRED_ADR_RI;
+    sc_in<sc_uint<32>>            PRED_BRANCH_ADR_RI;
     sc_in<bool>                   PRED_TAKEN_RI;
 
     sc_out<bool>                  IF2DEC_POP_SD;  // Decod says to IFETCH if it wants a pop or no
@@ -465,7 +465,7 @@ SC_MODULE(decod) {
                   << IF2DEC_EMPTY_SI << MCAUSE_WDATA_SM
                   << stall_sd 
                 
-                  << PRED_TAKEN_RI << PRED_ADR_RI;
+                  << PRED_TAKEN_RI << PRED_BRANCH_ADR_RI;
                   
     
         SC_METHOD(bypasses);
@@ -477,7 +477,7 @@ SC_MODULE(decod) {
 
                   << DEC2EXE_EMPTY_SD << MEM_LOAD_RE << MEM2WBK_EMPTY_SM;
         SC_METHOD(pred_reg_data);
-        sensitive << PRED_ADR_RI << PRED_TAKEN_RI;
+        sensitive << PRED_BRANCH_ADR_RI << PRED_TAKEN_RI;
 
         SC_METHOD(branch_taken_counter);
         sensitive << CLK.pos() << RESET_N;

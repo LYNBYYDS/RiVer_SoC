@@ -39,7 +39,7 @@ SC_MODULE(x0_multiplier)
     sc_signal<sc_bv<x02x1_size>> x02x1_dout_sx0;
     sc_signal<bool> x02x1_push_sx0, x02x1_full_sx0;
 
-    fifo<x02x1_size> fifo_inst;
+    fifo<x02x1_size> fifo_if2dec;
 
     void operation();
     // stage 1 (11 CSA remind product 33)
@@ -91,16 +91,16 @@ SC_MODULE(x0_multiplier)
     void trace(sc_trace_file* tf);
 
     SC_CTOR(x0_multiplier) :
-    fifo_inst("x02x1")
+    fifo_if2dec("x02x1")
     {
-        fifo_inst.DIN_S(x02x1_din_sx0);
-        fifo_inst.DOUT_R(x02x1_dout_sx0);
-        fifo_inst.EMPTY_S(X02X1_EMPTY_SX0);
-        fifo_inst.FULL_S(x02x1_full_sx0);
-        fifo_inst.PUSH_S(x02x1_push_sx0);
-        fifo_inst.POP_S(X02X1_POP_SX1);
-        fifo_inst.CLK(CLK);
-        fifo_inst.RESET_N(RESET);
+        fifo_if2dec.DIN_S(x02x1_din_sx0);
+        fifo_if2dec.DOUT_R(x02x1_dout_sx0);
+        fifo_if2dec.EMPTY_S(X02X1_EMPTY_SX0);
+        fifo_if2dec.FULL_S(x02x1_full_sx0);
+        fifo_if2dec.PUSH_S(x02x1_push_sx0);
+        fifo_if2dec.POP_S(X02X1_POP_SX1);
+        fifo_if2dec.CLK(CLK);
+        fifo_if2dec.RESET_N(RESET);
 
         SC_METHOD(operation);
         sensitive << OP1_SE << OP2_SE << EXE_CMD_RD;

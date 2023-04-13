@@ -10,8 +10,9 @@ void pred_branch_cache::pred_check() {
         {
             if (PRED_BRANCH_CHECK_ADR_IN_SI.read() == branch_inst_adr[i])           // if the branch instruction is the same as the stored branch instruction
             {// if is the same one 
-                PRED_BRANCH_CPT_OUT_SP.write(branch_counter[i]);               // counter
+                PRED_BRANCH_TARGET_ADR_OUT_SP.write(branch_target_adr[i]);      // target address
                 PRED_BRANCH_LRU_OUT_SP.write(lru[i]);                               // LRU
+                PRED_BRANCH_CPT_OUT_SP.write(branch_counter[i]);               // counter
                 PRED_BRANCH_PNT_OUT_SP.write(i);                                    // write the pointer(index) to tell which case will be change in the exe stage
                 miss = false;
             }

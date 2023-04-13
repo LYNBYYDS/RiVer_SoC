@@ -43,7 +43,7 @@ SC_MODULE(x1_multiplier)
     sc_signal<bool> x12x2_full_sx1;
     sc_signal<bool> x12x2_push_sx1;
 
-    fifo<x12x2_size> fifo_inst;
+    fifo<x12x2_size> fifo_if2dec;
 
     void parse_data();
     //stage 6 (2 CSA)
@@ -64,16 +64,16 @@ SC_MODULE(x1_multiplier)
 
     
     SC_CTOR(x1_multiplier) :
-    fifo_inst("x12x2")
+    fifo_if2dec("x12x2")
     {
-        fifo_inst.DIN_S(x12x2_din_sx1);
-        fifo_inst.DOUT_R(x12x2_dout_sx1);
-        fifo_inst.EMPTY_S(X12X2_EMPTY_SX1);
-        fifo_inst.FULL_S(x12x2_full_sx1);
-        fifo_inst.PUSH_S(x12x2_push_sx1);
-        fifo_inst.POP_S(X12X2_POP_SX2);
-        fifo_inst.CLK(CLK);
-        fifo_inst.RESET_N(RESET);
+        fifo_if2dec.DIN_S(x12x2_din_sx1);
+        fifo_if2dec.DOUT_R(x12x2_dout_sx1);
+        fifo_if2dec.EMPTY_S(X12X2_EMPTY_SX1);
+        fifo_if2dec.FULL_S(x12x2_full_sx1);
+        fifo_if2dec.PUSH_S(x12x2_push_sx1);
+        fifo_if2dec.POP_S(X12X2_POP_SX2);
+        fifo_if2dec.CLK(CLK);
+        fifo_if2dec.RESET_N(RESET);
 
         SC_METHOD(parse_data);
         sensitive << IN_RX0;

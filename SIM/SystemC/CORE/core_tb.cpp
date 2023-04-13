@@ -335,8 +335,8 @@ int sc_main(int argc, char* argv[]) {
     core_inst.MCACHE_STALL_SM(MEM_STALL);
     core_inst.MEM_SIZE_SM(MEM_SIZE_SM);
 
-    core_inst.ADR_SI(IF_ADR);
-    core_inst.ADR_VALID_SI(IF_ADR_VALID);
+    core_inst.PC_SI(IF_ADR);
+    core_inst.PC_VALID_SI(IF_ADR_VALID);
     core_inst.INST_SIC(INST_SIC);
     core_inst.STALL_SIC(STALL_SIC);
     core_inst.CLK(CLK);
@@ -383,8 +383,8 @@ int sc_main(int argc, char* argv[]) {
 
     // ICache mapios::out
     //processor side
-    icache_inst.ADR_SI(IF_ADR);
-    icache_inst.ADR_VALID_SI(IF_ADR_VALID);
+    icache_inst.PC_SI(IF_ADR);
+    icache_inst.PC_VALID_SI(IF_ADR_VALID);
     icache_inst.IC_INST_SI(INST_SIC);
     icache_inst.IC_STALL_SI(STALL_SIC);
     //MP side

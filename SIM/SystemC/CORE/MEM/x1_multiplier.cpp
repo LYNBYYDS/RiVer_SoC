@@ -108,5 +108,5 @@ void x1_multiplier::trace(sc_trace_file* tf)
         std::string icname = "prod_s8_"+std::to_string(i);
         sc_trace(tf, product_s8[i], signal_get_name(product_s8[i].name(), icname.c_str()));
     }
-    fifo_inst.trace(tf);
+    fifo_if2dec.trace(tf);
 }

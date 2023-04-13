@@ -54,7 +54,7 @@ SC_MODULE(core) {
     sc_signal<sc_uint<32>> PC_IF2DEC_RI;
     sc_signal<bool>        EXCEPTION_RI;
 
-    sc_signal<sc_uint<32>> PRED_ADR_RI;
+    sc_signal<sc_uint<32>> PRED_BRANCH_ADR_RI;
     sc_signal<bool>        PRED_TAKEN_RI;
 
     // DEC-EXE interface
@@ -248,8 +248,8 @@ SC_MODULE(core) {
     sc_in<bool>        MCACHE_STALL_SM;
 
     // Icache interface
-    sc_out<sc_uint<32>> ADR_SI;
-    sc_out<bool>        ADR_VALID_SI;
+    sc_out<sc_uint<32>> PC_SI;
+    sc_out<bool>        PC_VALID_SI;
 
     sc_in<sc_bv<32>> INST_SIC;
     sc_in<bool>      STALL_SIC;
@@ -320,11 +320,11 @@ SC_MODULE(core) {
         ifetch_inst.IF2DEC_POP_SD(IF2DEC_POP_SD);
         ifetch_inst.IF2DEC_FLUSH_SD(IF2DEC_FLUSH_SD);
 
-        ifetch_inst.PRED_ADR_RI(PRED_ADR_RI);
+        ifetch_inst.PRED_BRANCH_ADR_RI(PRED_BRANCH_ADR_RI);
         ifetch_inst.PRED_TAKEN_RI(PRED_TAKEN_RI);
     
-        ifetch_inst.ADR_SI(ADR_SI);
-        ifetch_inst.ADR_VALID_SI(ADR_VALID_SI);
+        ifetch_inst.PC_SI(PC_SI);
+        ifetch_inst.PC_VALID_SI(PC_VALID_SI);
 
         ifetch_inst.INST_SIC(INST_SIC);
         ifetch_inst.STALL_SIC(STALL_SIC);
@@ -355,7 +355,7 @@ SC_MODULE(core) {
         dec_inst.INSTR_RI(INSTR_RI);
         dec_inst.IF2DEC_EMPTY_SI(IF2DEC_EMPTY_SI);
 
-        dec_inst.PRED_ADR_RI(PRED_ADR_RI);
+        dec_inst.PRED_BRANCH_ADR_RI(PRED_BRANCH_ADR_RI);
         dec_inst.PRED_TAKEN_RI(PRED_TAKEN_RI);
 
         dec_inst.IF2DEC_POP_SD(IF2DEC_POP_SD);
