@@ -6,7 +6,7 @@ void pred_branch_cache::pred_check() {
     sc_uint<2> replace_index;                                                       // local value last index with low priority
     for(int i = 0 ; i < PRED_BRANCH_CACHE_SIZE ; i++)
     {
-        if (present[i])                                                             // if the cache bit of present is valide 
+        if (present[i].read() == 1)                                                             // if the cache bit of present is valide 
         {
             if (PRED_BRANCH_CHECK_ADR_IN_SI.read() == branch_inst_adr[i])           // if the branch instruction is the same as the stored branch instruction
             {// if is the same one 
@@ -15,7 +15,7 @@ void pred_branch_cache::pred_check() {
                 PRED_BRANCH_PNT_OUT_SP.write(i);                                    // write the pointer(index) to tell which case will be change in the exe stage
                 miss = false;
             }
-            if (lru[i] == inverse_lru)                                              // this case is with low priority
+            if (lru[i].read() == inverse_lru)                                              // this case is with low priority
             {
                 replace_index = i;                                                  // store the index for future use
             }
@@ -64,7 +64,7 @@ void pred_branch_cache::pred_write() {
                 }
                 else                                                                                            // if is not the last low priority case need to change p_nb and lru
                 {
-                    p_nb.write(p_nb.read()+1);
+                    p_nb = p_nb.read() + 1;
                     lru[PRED_BRANCH_PNT_IN_SE.read()] = 1 - inverse_lru;
                 }
             }
@@ -81,7 +81,7 @@ void pred_branch_cache::pred_write() {
                     }
                     else                                                                                        // this is not the last case that with low priority
                     {
-                        p_nb.write(p_nb.read()+1);
+                        p_nb = p_nb.read() + 1;
                         lru[PRED_BRANCH_PNT_IN_SE.read()] = 1 - inverse_lru;
                     }
                 }

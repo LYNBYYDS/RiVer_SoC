@@ -77,7 +77,7 @@ int sc_main(int argc, char* argv[]) {
     b1.is_taken = rand() % 2;
 
     pred_branch_check_adr_in.write(b1.branch_instruction_adr);
-    pred_branch_cmd_in.write(1);
+    //pred_branch_cmd_in.write(1);
 
     sc_start(1, SC_NS);
 
@@ -85,11 +85,10 @@ int sc_main(int argc, char* argv[]) {
     cpt_out = pred_branch_cpt_out.read();
     lru_out = pred_branch_lru_out.read();
     pnt_out = pred_branch_pnt_out.read();
-    int cpt_in = 0b10;
 
     int cmd_in = 1;
 
-    sc_start(2, SC_NS);
+    sc_start(1, SC_NS);
 
     pred_branch_cmd_in.write(1);
     pred_branch_write_adr_in.write(b1.branch_instruction_adr);
@@ -98,6 +97,14 @@ int sc_main(int argc, char* argv[]) {
     pred_branch_lru_in.write(lru_out);
     pred_branch_pnt_in.write(pnt_out);
 
+    sc_start(1, SC_NS);
+    pred_branch_cmd_in.write(2);
+    pred_branch_write_adr_in.write(b1.branch_instruction_adr);
+    pred_branch_target_adr_in.write(b1.branch_target_adr);
+    pred_branch_cpt_in.write(2);
+    pred_branch_lru_in.write(lru_out);
+    pred_branch_pnt_in.write(pnt_out);
+    
     sc_start(3, SC_NS);
 
     cout << "All tests passed sucessfully" << endl;
