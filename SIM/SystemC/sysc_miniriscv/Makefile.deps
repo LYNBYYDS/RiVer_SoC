@@ -1,0 +1,13 @@
+-Wall
+-Wno-deprecated
+-g
+-M
+main.cpp
+miniriscv/src/alu.cpp
+miniriscv/src/dec.cpp
+miniriscv/src/exec.cpp
+miniriscv/src/ifetch.cpp
+miniriscv/src/mem.cpp
+miniriscv/src/reg.cpp
+miniriscv/src/shifter.cpp
+miniriscv/src/wbk.cpp
