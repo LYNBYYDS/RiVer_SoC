@@ -88,9 +88,10 @@ SC_MODULE(ifetch) {
         fifo_if2dec.RESET_N(RESET);
 
         SC_METHOD(fetch_method);
-        sensitive << INST_SIC << DEC2IF_EMPTY_SI << if2dec_full << PC_RD << IF2DEC_FLUSH_SD << STALL_SIC << RESET
-                  << EXCEPTION_SM << MRET_SM << RETURN_ADRESS_SM << PRED_BRANCH_ADR_RI << PRED_TAKEN_RI << PRED_SUCCESS_RD
-                  << PRED_FAILED_RD << PRED_ADR_TAKEN_SI << PRED_NEXT_ADR_SI;
+        sensitive INST_SIC << STALL_SIC << DEC2IF_EMPTY_SI << PC_RD << IF2DEC_FLUSH_SD << IF2DEC_POP_SD
+                            << PRED_BRANCH_MISS_OUT_SP << PRED_BRANCH_TARGET_ADR_OUT_SP << PRED_BRANCH_LRU_OUT_SP 
+                            << PRED_BRANCH_CPT_OUT_SP << PRED_BRANCH_PNT_OUT_SP << INTERRUPTION_SE 
+                            << CURRENT_MODE_SM << MRET_SM << RETURN_ADRESS_SM;
         SC_METHOD(exception);
         sensitive << RESET << EXCEPTION_SM;
     }

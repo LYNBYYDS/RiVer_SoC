@@ -100,66 +100,33 @@ void ifetch::trace(sc_trace_file* tf) {
     sc_trace(tf, IF2DEC_POP_SD, GET_NAME(IF2DEC_POP_SD));
     sc_trace(tf, IF2DEC_EMPTY_SI, GET_NAME(IF2DEC_EMPTY_SI));
     sc_trace(tf, INSTR_RI, GET_NAME(INSTR_RI));
-    sc_trace(tf, if2dec_push, GET_NAME(if2dec_push));
-    sc_trace(tf, if2dec_full, GET_NAME(if2dec_full));
-    sc_trace(tf, IF2DEC_EMPTY_SI, GET_NAME(IF2DEC_EMPTY_SI));
-    sc_trace(tf, INSTR_RI, GET_NAME(INSTR_RI));
     sc_trace(tf, PC_IF2DEC_RI, GET_NAME(PC_IF2DEC_RI));
+    sc_trace(tf, EXCEPTION_RI, GET_NAME(EXCEPTION_RI));
+    sc_trace(tf, PRED_BRANCH_ADR_RI, GET_NAME(PRED_BRANCH_ADR_RI));
+    sc_trace(tf, PRED_BRANCH_TARGET_ADR_RI, GET_NAME(PRED_BRANCH_TARGET_ADR_RI));
+    sc_trace(tf, PRED_BRANCH_MISS_OUT_SI, GET_NAME(PRED_BRANCH_MISS_OUT_SI));
+    sc_trace(tf, PRED_BRANCH_CPT_OUT_SI, GET_NAME(PRED_BRANCH_CPT_OUT_SI));
+    sc_trace(tf, PRED_BRANCH_LRU_OUT_SI, GET_NAME(PRED_BRANCH_LRU_OUT_SI));
+    sc_trace(tf, PRED_BRANCH_PNT_OUT_SI, GET_NAME(PRED_BRANCH_PNT_OUT_SI));
+    sc_trace(tf, PRED_BRANCH_CHECK_ADR_IN_SI, GET_NAME(PRED_BRANCH_CHECK_ADR_IN_SI));
+    sc_trace(tf, PRED_BRANCH_MISS_OUT_SP, GET_NAME(PRED_BRANCH_MISS_OUT_SP));
+    sc_trace(tf, PRED_BRANCH_TARGET_ADR_OUT_SP, GET_NAME(PRED_BRANCH_TARGET_ADR_OUT_SP));
+    sc_trace(tf, PRED_BRANCH_LRU_OUT_SP, GET_NAME(PRED_BRANCH_LRU_OUT_SP));
+    sc_trace(tf, PRED_BRANCH_CPT_OUT_SP, GET_NAME(PRED_BRANCH_CPT_OUT_SP));
+    sc_trace(tf, PRED_BRANCH_PNT_OUT_SP, GET_NAME(PRED_BRANCH_PNT_OUT_SP));
+    sc_trace(tf, INTERRUPTION_SE, GET_NAME(INTERRUPTION_SE));
+    sc_trace(tf, CURRENT_MODE_SM, GET_NAME(CURRENT_MODE_SM));
+    sc_trace(tf, MRET_SM, GET_NAME(MRET_SM));
+    sc_trace(tf, RETURN_ADRESS_SM, GET_NAME(RETURN_ADRESS_SM));
+    sc_trace(tf, EXCEPTION_SM, GET_NAME(EXCEPTION_SM));
     sc_trace(tf, CLK, GET_NAME(CLK));
     sc_trace(tf, RESET, GET_NAME(RESET));
+    sc_trace(tf, if2dec_push, GET_NAME(if2dec_push));
+    sc_trace(tf, if2dec_full, GET_NAME(if2dec_full));
     sc_trace(tf, if2dec_in, GET_NAME(if2dec_in));
     sc_trace(tf, if2dec_out, GET_NAME(if2dec_out));
-    sc_trace(tf, EXCEPTION_RI, GET_NAME(EXCEPTION_RI));
-    sc_trace(tf, EXCEPTION_SM, GET_NAME(EXCEPTION_SM));
-    sc_trace(tf, INTERRUPTION_SE, GET_NAME(INTERRUPTION_SE));
-    sc_trace(tf, MRET_SM, GET_NAME(MRET_SM));
-    sc_trace(tf, INSTR_IS_BRANCH_RD, GET_NAME(INSTR_IS_BRANCH_RD));
-    sc_trace(tf, BRANCH_INST_ADR_RD, GET_NAME(BRANCH_INST_ADR_RD));
-    sc_trace(tf, BRANCH_TARGET_ADR_RD, GET_NAME(BRANCH_TARGET_ADR_RD));
-    sc_trace(tf, PRED_BRANCH_ADR_RI, GET_NAME(PRED_BRANCH_ADR_RI));
-    sc_trace(tf, PRED_TAKEN_RI, GET_NAME(PRED_TAKEN_RI));
-    sc_trace(tf, PRED_NEXT_ADR_SI, GET_NAME(PRED_NEXT_ADR_SI));
-    sc_trace(tf, PRED_ADR_TAKEN_SI, GET_NAME(PRED_ADR_TAKEN_SI));
-    sc_trace(tf, pred_write_pointer_si, GET_NAME(pred_write_pointer_si));
-    sc_trace(tf, PRED_SUCCESS_RD, GET_NAME(PRED_SUCCESS_RD));
-    sc_trace(tf, next_state_pred_si, GET_NAME(next_state_pred_si));
-    sc_trace(tf, PRED_FAILED_RD, GET_NAME(PRED_FAILED_RD));
 
-    for (int i = 0; i < predictor_register_size; i++) {
-        std::string regname = "REG_ADR_";
-        regname += std::to_string(i);
-        sc_trace(tf, BRANCH_ADR_REG[i], signal_get_name(BRANCH_ADR_REG[i].name(), regname.c_str()));
 
-        regname = "REG_PRED_";
-        regname += std::to_string(i);
-        sc_trace(tf, PREDICTED_ADR_REG[i], signal_get_name(PREDICTED_ADR_REG[i].name(), regname.c_str()));
-
-        regname = "REG_STATE_";
-        regname += std::to_string(i);
-        sc_trace(tf, PRED_STATE_REG[i], signal_get_name(PRED_STATE_REG[i].name(), regname.c_str()));
-    }
-
-    for (int i = 0; i < ret_stack_size; i++) {
-        std::string regname = "STACK_ADR_";
-        regname += std::to_string(i);
-        sc_trace(tf, RET_STACK_RI[i], signal_get_name(RET_STACK_RI[i].name(), regname.c_str()));
-    }
-
-    for (int i = 0; i < ret_predictor_register_size; i++) {
-        std::string regname = "RET_REG_ADR_";
-        regname += std::to_string(i);
-        sc_trace(tf, RET_ADR_RI[i], signal_get_name(RET_ADR_RI[i].name(), regname.c_str()));
-    }
-
-    sc_trace(tf, PUSH_ADR_RAS_RD, GET_NAME(PUSH_ADR_RAS_RD));
-    sc_trace(tf, POP_ADR_RAS_RD, GET_NAME(POP_ADR_RAS_RD));
-    sc_trace(tf, RETURN_ADR_RD, GET_NAME(RETURN_ADR_RD));
-    sc_trace(tf, RET_INST_RD, GET_NAME(RET_INST_RD));
-    sc_trace(tf, ret_stack_pointer_si, GET_NAME(ret_stack_pointer_si));
-    sc_trace(tf, pred_branch_taken_si, GET_NAME(pred_branch_taken_si));
-    sc_trace(tf, pred_ret_taken_si, GET_NAME(pred_ret_taken_si));
-    sc_trace(tf, pred_ret_next_adr_si, GET_NAME(pred_ret_next_adr_si));
-    sc_trace(tf, pred_branch_next_adr_si, GET_NAME(pred_branch_next_adr_si));
 
     fifo_if2dec.trace(tf);
 }
