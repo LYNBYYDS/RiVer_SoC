@@ -28,6 +28,7 @@ SC_MODULE(ifetch) {
 
     // IF2DEC Interface :
         sc_in<bool>             IF2DEC_FLUSH_SD;                // IF2DEC fifo flush
+        sc_in<bool>             IF2DEC_POP_SD;                  // IF2DEC fifo pop
         sc_out<bool>            IF2DEC_EMPTY_SI;                // IF2DEC fifo empty
         sc_out<sc_bv<32>>       INSTR_RI;                       // instruction get from fifo IF2DEC
         sc_out<sc_uint<32>>     PC_IF2DEC_RI;                   // pc get from fifo IF2DEC

@@ -89,18 +89,20 @@ void ifetch::exception()
 }
 
 void ifetch::trace(sc_trace_file* tf) {
-    sc_trace(tf, PC_SI, GET_NAME(PC_SI));
-    sc_trace(tf, PC_VALID_SI, GET_NAME(PC_VALID_SI));
     sc_trace(tf, INST_SIC, GET_NAME(INST_SIC));
     sc_trace(tf, STALL_SIC, GET_NAME(STALL_SIC));
+    sc_trace(tf, PC_SI, GET_NAME(PC_SI));
+    sc_trace(tf, PC_VALID_SI, GET_NAME(PC_VALID_SI));
     sc_trace(tf, DEC2IF_EMPTY_SI, GET_NAME(DEC2IF_EMPTY_SI));
     sc_trace(tf, DEC2IF_POP_SI, GET_NAME(DEC2IF_POP_SI));
+    sc_trace(tf, PC_RD, GET_NAME(PC_RD));
     sc_trace(tf, IF2DEC_FLUSH_SD, GET_NAME(IF2DEC_FLUSH_SD));
     sc_trace(tf, IF2DEC_POP_SD, GET_NAME(IF2DEC_POP_SD));
+    sc_trace(tf, IF2DEC_EMPTY_SI, GET_NAME(IF2DEC_EMPTY_SI));
+    sc_trace(tf, INSTR_RI, GET_NAME(INSTR_RI));
     sc_trace(tf, if2dec_push, GET_NAME(if2dec_push));
     sc_trace(tf, if2dec_full, GET_NAME(if2dec_full));
     sc_trace(tf, IF2DEC_EMPTY_SI, GET_NAME(IF2DEC_EMPTY_SI));
-    sc_trace(tf, PC_RD, GET_NAME(PC_RD));
     sc_trace(tf, INSTR_RI, GET_NAME(INSTR_RI));
     sc_trace(tf, PC_IF2DEC_RI, GET_NAME(PC_IF2DEC_RI));
     sc_trace(tf, CLK, GET_NAME(CLK));
