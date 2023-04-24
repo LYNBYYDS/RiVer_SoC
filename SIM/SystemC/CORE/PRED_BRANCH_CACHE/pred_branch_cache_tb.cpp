@@ -36,7 +36,7 @@ int sc_main(int argc, char* argv[]) {
     // Input Port
     pred_branch_cache_inst.PRED_BRANCH_CHECK_ADR_IN_SI(pred_branch_check_adr_in);
     pred_branch_cache_inst.PRED_BRANCH_CMD_IN_SE(pred_branch_cmd_in);
-    pred_branch_cache_inst.PRED_BRANCH_WRITE_ADR_IN_SI(pred_branch_write_adr_in);
+    pred_branch_cache_inst.PRED_BRANCH_WRITE_ADR_IN_SE(pred_branch_write_adr_in);
     pred_branch_cache_inst.PRED_BRANCH_TARGET_ADR_IN_SE(pred_branch_target_adr_in);
     pred_branch_cache_inst.PRED_BRANCH_CPT_IN_SE(pred_branch_cpt_in);
     pred_branch_cache_inst.PRED_BRANCH_LRU_IN_SE(pred_branch_lru_in);

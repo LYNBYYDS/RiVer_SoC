@@ -54,7 +54,7 @@ void pred_branch_cache::pred_write() {
             if (PRED_BRANCH_CMD_IN_SE.read() == 1)                                                              // write situation the instruction is not in the cache
             {
                 // update all the local signal with the input
-                branch_inst_adr[PRED_BRANCH_PNT_IN_SE.read()].write(PRED_BRANCH_WRITE_ADR_IN_SI.read());
+                branch_inst_adr[PRED_BRANCH_PNT_IN_SE.read()].write(PRED_BRANCH_WRITE_ADR_IN_SE.read());
                 branch_target_adr[PRED_BRANCH_PNT_IN_SE.read()].write(PRED_BRANCH_TARGET_ADR_IN_SE.read());
                 branch_counter[PRED_BRANCH_PNT_IN_SE.read()].write(PRED_BRANCH_CPT_IN_SE.read());          // PRED_BRANCH_CPT_IN_SE is calculer outside the module depends on the brach success or not
                 // lru, inverse_lru and p_nb need to test if the cache is full or not
@@ -99,7 +99,7 @@ void pred_branch_cache::pred_write() {
 void pred_branch_cache::trace(sc_trace_file* tf) {
     sc_trace(tf, PRED_BRANCH_CHECK_ADR_IN_SI, GET_NAME(PRED_BRANCH_CHECK_ADR_IN_SI));
     sc_trace(tf, PRED_BRANCH_CMD_IN_SE, GET_NAME(PRED_BRANCH_CMD_IN_SE));
-    sc_trace(tf, PRED_BRANCH_WRITE_ADR_IN_SI, GET_NAME(PRED_BRANCH_WRITE_ADR_IN_SI));
+    sc_trace(tf, PRED_BRANCH_WRITE_ADR_IN_SE, GET_NAME(PRED_BRANCH_WRITE_ADR_IN_SE));
     sc_trace(tf, PRED_BRANCH_TARGET_ADR_IN_SE, GET_NAME(PRED_BRANCH_TARGET_ADR_IN_SE));
     sc_trace(tf, PRED_BRANCH_CPT_IN_SE, GET_NAME(PRED_BRANCH_CPT_IN_SE));
     sc_trace(tf, PRED_BRANCH_LRU_IN_SE, GET_NAME(PRED_BRANCH_LRU_IN_SE));

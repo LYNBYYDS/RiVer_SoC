@@ -25,7 +25,7 @@ SC_MODULE(decod) {
     sc_out<sc_uint<32>> OP1_RD;                     // value of op1
     sc_out<sc_uint<32>> OP2_RD;                     // value of op2
     sc_out<sc_uint<2>>  EXE_CMD_RD;                 // value of the command sent to exe
-    sc_out<bool>        NEG_OP2_RD;                 // say if we take the opposite of the op1 to do a
+    sc_out<bool>        NEG_OP2_RD;                 // say if we take the opposite of the op2 to do a
                                                     // substraction for example
     sc_out<bool>        WB_RD;                      // say if we plan to wbk the value of rd or no
     sc_out<sc_uint<6>>  EXE_DEST_RD;                // the destination register

@@ -9,7 +9,7 @@ SC_MODULE(pred_branch_cache) {
         sc_in<sc_uint<32>> PRED_BRANCH_CHECK_ADR_IN_SI;     // Branch instruction address need to be check in the table if it exist or not
 
         sc_in<sc_uint<2>> PRED_BRANCH_CMD_IN_SE;            // CMD for the skip(not branch instruction)/write/update it's depends on the signal PRED_BRANCH_MISS_OUT_SI skip = 0 write = 1 update = 2
-        sc_in<sc_uint<32>> PRED_BRANCH_WRITE_ADR_IN_SI;     // Branch instruction address need to be write in the table
+        sc_in<sc_uint<32>> PRED_BRANCH_WRITE_ADR_IN_SE;     // Branch instruction address need to be write in the table
         sc_in<sc_uint<32>> PRED_BRANCH_TARGET_ADR_IN_SE;    // Branch target address
         sc_in<sc_uint<2>> PRED_BRANCH_CPT_IN_SE;            // Branch taken counter
         sc_in<bool> PRED_BRANCH_LRU_IN_SE;                  // Less Recent Use
@@ -50,7 +50,7 @@ SC_MODULE(pred_branch_cache) {
 
         
         SC_THREAD(pred_write);
-        sensitive << PRED_BRANCH_CMD_IN_SE << PRED_BRANCH_WRITE_ADR_IN_SI << PRED_BRANCH_TARGET_ADR_IN_SE << PRED_BRANCH_CPT_IN_SE << PRED_BRANCH_LRU_IN_SE << PRED_BRANCH_PNT_IN_SE << RESET_N;
+        sensitive << PRED_BRANCH_CMD_IN_SE << PRED_BRANCH_WRITE_ADR_IN_SE << PRED_BRANCH_TARGET_ADR_IN_SE << PRED_BRANCH_CPT_IN_SE << PRED_BRANCH_LRU_IN_SE << PRED_BRANCH_PNT_IN_SE << RESET_N;
         reset_signal_is(RESET_N, false);
     }
 };

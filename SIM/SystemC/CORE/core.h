@@ -4,6 +4,7 @@
 #include "IFETCH/ifetch.h"
 #include "MEM/mem.h"
 #include "REG/reg.h"
+#include "PRED_BRANCH_CACHE/pred_branch_cache.h"
 #include "TIMER/timer.h"
 #include "WBK/wbk.h"
 #include "systemc.h"
@@ -26,36 +27,46 @@ SC_MODULE(core) {
     // IFETCH-DEC interface
     // DEC2IF :
 
-    sc_signal<bool>        DEC2IF_POP_SI;
     sc_signal<bool>        DEC2IF_EMPTY_SI;
-    sc_signal<sc_uint<32>>   PC_RD;
+    sc_signal<bool>        DEC2IF_POP_SI;
+    sc_signal<sc_uint<32>> PC_RD;
 
-    sc_signal<bool>        INSTR_IS_BRANCH_RD;
-    sc_signal<sc_uint<32>> BRANCH_INST_ADR_RD;
-    sc_signal<sc_uint<32>> BRANCH_TARGET_ADR_RD;
-    sc_signal<bool>        PRED_SUCCESS_RD;
-    sc_signal<bool>        PRED_FAILED_RD;
-
-    sc_signal<sc_uint<32>> PRED_ADR_SD;
-    sc_signal<bool>        PRED_TAKEN_SD;
-
-    sc_signal<bool>        PUSH_ADR_RAS_RD;
-    sc_signal<bool>        POP_ADR_RAS_RD;
-
-    sc_signal<sc_uint<32>> RETURN_ADR_RD;
-
-    sc_signal<bool>        RET_INST_RD;
     // IF2DEC :
 
-    sc_signal<sc_bv<32>>   INSTR_RI;
-    sc_signal<bool>        IF2DEC_EMPTY_SI;
-    sc_signal<bool>        IF2DEC_POP_SD;
-    sc_signal<bool>        IF2DEC_FLUSH_SD;
-    sc_signal<sc_uint<32>> PC_IF2DEC_RI;
-    sc_signal<bool>        EXCEPTION_RI;
+    sc_signal<bool>             IF2DEC_FLUSH_SD;                // IF2DEC fifo flush
+    sc_signal<bool>             IF2DEC_POP_SD;                  // IF2DEC fifo pop
+    sc_signal<bool>             IF2DEC_EMPTY_SI;                // IF2DEC fifo empty
+    sc_signal<sc_bv<32>>        INSTR_RI;                       // instruction get from fifo IF2DEC
+    sc_signal<sc_uint<32>>      PC_IF2DEC_RI;                   // pc get from fifo IF2DEC
+    sc_signal<bool>             EXCEPTION_RI;                   // ?i dont understand  tells if an instruction have been made in IFETCH
+    sc_signal<sc_uint<32>>      PRED_BRANCH_ADR_RI;             // branch instruction address
+    sc_signal<sc_unint<32>>     PRED_BRANCH_TARGET_ADR_RI;      // branch target address
+    sc_signal<bool>             PRED_BRANCH_MISS_OUT_SI;        // MISS/HIT for the cache MISS = 1 HIT = 0
+    sc_signal<sc_uint<2>>       PRED_BRANCH_CPT_OUT_SI;         // branch taken times
+    sc_signal<bool>             PRED_BRANCH_LRU_OUT_SI;         // Less Recent Use
+    sc_signal<sc_uint<2>>       PRED_BRANCH_PNT_OUT_SI;         // branch taken target address
 
-    sc_signal<sc_uint<32>> PRED_BRANCH_ADR_RI;
-    sc_signal<bool>        PRED_TAKEN_RI;
+    // IF-PRED_BRANCH_CACHE interface
+
+    sc_signal<sc_uint<32>>      PRED_BRANCH_CHECK_ADR_IN_SI;         // Branch instruction address need to be check in the table if it exist or not
+
+    // PRED_BRANCH_CACHE-IF interface
+
+    sc_signal<bool>             PRED_BRANCH_MISS_OUT_SP;              // MISS/HIT for the cache MISS = 1 HIT = 0
+    sc_signal<sc_uint<32>>      PRED_BRANCH_TARGET_ADR_OUT_SP;        // Branch target address
+    sc_signal<bool>             PRED_BRANCH_LRU_OUT_SP;               // Less Recent Use
+    sc_signal<sc_uint<2>>       PRED_BRANCH_CPT_OUT_SP;               // Branch taken times
+    sc_signal<sc_uint<2>>       PRED_BRANCH_PNT_OUT_SP;               // Branch taken target address
+
+    // EXE-PRED_BRANCH_CACHE interface
+
+    sc_signal<sc_uint<2>>       PRED_BRANCH_CMD_IN_SE;            // CMD for the skip(not branch instruction)/write/update it's depends on the signal PRED_BRANCH_MISS_OUT_SI skip = 0 write = 1 update = 2
+    sc_signal<sc_uint<32>>      PRED_BRANCH_WRITE_ADR_IN_SE;     // Branch instruction address need to be write in the table
+    sc_signal<sc_uint<32>>      PRED_BRANCH_TARGET_ADR_IN_SE;    // Branch target address
+    sc_signal<sc_uint<2>>       PRED_BRANCH_CPT_IN_SE;            // Branch taken counter
+    sc_signal<bool>             PRED_BRANCH_LRU_IN_SE;                  // Less Recent Use
+    sc_signal<sc_uint<2>>       PRED_BRANCH_PNT_IN_SE;            // The index where to put the data
+
 
     // DEC-EXE interface
 
@@ -98,6 +109,17 @@ SC_MODULE(core) {
     sc_signal<bool>        ENV_CALL_U_MODE_RD;
     sc_signal<bool>        ENV_CALL_M_MODE_RD;
     sc_signal<sc_uint<32>> KERNEL_ADR_SC;
+
+    // DEC2EXE PRED_BRANCH_CACHE interface
+    sc_signal<sc_uint<32>> PRED_BRANCH_ADR_RD;        // branch instruction address
+    sc_signal<bool>        PRED_BRANCH_MISS_RD;       // MISS/HIT for the cache MISS = 1 HIT = 0
+    sc_signal<sc_uint<2>>  PRED_BRANCH_CPT_RD;        // branch taken times
+    sc_signal<bool>        PRED_BRANCH_LRU_RD;        // Less Recent Use
+    sc_signal<sc_uint<2>>  PRED_BRANCH_PNT_RD;        // branch taken target address
+    sc_signal<bool>        IS_BRANCH_RD;              // branch instruction or not
+    sc_signal<bool>        BRANCH_TAKEN_RD;           // branch taken or not
+
+
     // DEC-CSR interface
     sc_signal<sc_uint<12>> CSR_RADR_SD;
     sc_signal<bool> CSRRC_I_RD;
@@ -269,6 +291,7 @@ SC_MODULE(core) {
     ifetch ifetch_inst;
     mem    mem_inst;
     reg    reg_inst;
+    pred_branch_cache pred_branch_cache_inst;
     wbk    wbk_inst;
     csr    csr_inst;
     timer  timer_inst;
@@ -298,48 +321,79 @@ SC_MODULE(core) {
         SC_METHOD(core_method);
         sensitive << READ_PC_SR;
 
-        ifetch_inst.DEC2IF_POP_SI(DEC2IF_POP_SI);
-        ifetch_inst.DEC2IF_EMPTY_SI(DEC2IF_EMPTY_SI);
-        ifetch_inst.PC_RD(PC_RD);
-        ifetch_inst.PRED_FAILED_RD(PRED_FAILED_RD);
-        ifetch_inst.PRED_SUCCESS_RD(PRED_SUCCESS_RD);
-        ifetch_inst.INSTR_IS_BRANCH_RD(INSTR_IS_BRANCH_RD);
-        ifetch_inst.BRANCH_INST_ADR_RD(BRANCH_INST_ADR_RD);
-        ifetch_inst.BRANCH_TARGET_ADR_RD(BRANCH_TARGET_ADR_RD);
 
-        ifetch_inst.PUSH_ADR_RAS_RD(PUSH_ADR_RAS_RD);
-        ifetch_inst.POP_ADR_RAS_RD(POP_ADR_RAS_RD);
-        ifetch_inst.RETURN_ADR_RD(RETURN_ADR_RD);
-        ifetch_inst.RET_INST_RD(RET_INST_RD);
-
-        ifetch_inst.PRED_ADR_SD(PRED_ADR_SD);
-        ifetch_inst.PRED_TAKEN_SD(PRED_TAKEN_SD);
-
-        ifetch_inst.INSTR_RI(INSTR_RI);
-        ifetch_inst.IF2DEC_EMPTY_SI(IF2DEC_EMPTY_SI);
-        ifetch_inst.IF2DEC_POP_SD(IF2DEC_POP_SD);
-        ifetch_inst.IF2DEC_FLUSH_SD(IF2DEC_FLUSH_SD);
-
-        ifetch_inst.PRED_BRANCH_ADR_RI(PRED_BRANCH_ADR_RI);
-        ifetch_inst.PRED_TAKEN_RI(PRED_TAKEN_RI);
-    
+        // ICACHE-IFETCH interface
+        ifetch_inst.INST_SIC(INST_SIC);
+        ifetch_inst.STALL_SIC(STALL_SIC);
         ifetch_inst.PC_SI(PC_SI);
         ifetch_inst.PC_VALID_SI(PC_VALID_SI);
 
-        ifetch_inst.INST_SIC(INST_SIC);
-        ifetch_inst.STALL_SIC(STALL_SIC);
+        // DECOD-IFETCH interface
+        ifetch_inst.DEC2IF_EMPTY_SI(DEC2IF_EMPTY_SI);
+        ifetch_inst.DEC2IF_POP_SI(DEC2IF_POP_SI);
+        ifetch_inst.PC_RD(PC_RD);
 
+        // IFETCH-DECOD interface
+        ifetch_inst.IF2DEC_FLUSH_SD(IF2DEC_FLUSH_SD);
+        ifetch_inst.IF2DEC_POP_SD(IF2DEC_POP_SD);
+        ifetch_inst.IF2DEC_EMPTY_SI(IF2DEC_EMPTY_SI);
+        ifetch_inst.INSTR_RI(INSTR_RI);
         ifetch_inst.PC_IF2DEC_RI(PC_IF2DEC_RI);
-        ifetch_inst.INTERRUPTION_SE(INTERRUPTION_SE);
         ifetch_inst.EXCEPTION_RI(EXCEPTION_RI);
-        ifetch_inst.EXCEPTION_SM(EXCEPTION_SM);
+        ifetch_inst.PRED_BRANCH_ADR_RI(PRED_BRANCH_ADR_RI);
+        ifetch_inst.PRED_BRANCH_TARGET_ADR_RI(PRED_BRANCH_TARGET_ADR_RI);
+        ifetch_inst.PRED_BRANCH_MISS_OUT_SI(PRED_BRANCH_MISS_OUT_SI);
+        ifetch_inst.PRED_BRANCH_CPT_OUT_SI(PRED_BRANCH_CPT_OUT_SI);
+        ifetch_inst.PRED_BRANCH_LRU_OUT_SI(PRED_BRANCH_LRU_OUT_SI);
+        ifetch_inst.PRED_BRANCH_PNT_OUT_SI(PRED_BRANCH_PNT_OUT_SI);
+
+        // IFETCH -> PRED_BRANCH_CACHE
+        ifetch_inst.PRED_BRANCH_CHECK_ADR_IN_SI(PRED_BRANCH_CHECK_ADR_IN_SI);
+
+        // PRED_BRANCH_CACHE -> IFETCH
+        ifetch_inst.PRED_BRANCH_MISS_OUT_SP(PRED_BRANCH_MISS_OUT_SP);                     // MISS/HIT for the cache MISS = 1 HIT = 0
+        ifetch_inst.PRED_BRANCH_TARGET_ADR_OUT_SP(PRED_BRANCH_TARGET_ADR_OUT_SP);         // Branch target address
+        ifetch_inst.PRED_BRANCH_LRU_OUT_SP(PRED_BRANCH_LRU_OUT_SP);                       // Less Recent Use
+        ifetch_inst.PRED_BRANCH_CPT_OUT_SP(PRED_BRANCH_CPT_OUT_SP);                       // Branch taken times
+        ifetch_inst.PRED_BRANCH_PNT_OUT_SP(PRED_BRANCH_PNT_OUT_SP);                       // Branch taken target address
+
+        // INTERRUPTION
+        ifetch_inst.INTERRUPTION_SE(INTERRUPTION_SE);
         ifetch_inst.CURRENT_MODE_SM(CURRENT_MODE_SM);
         ifetch_inst.MRET_SM(MRET_SM);
         ifetch_inst.RETURN_ADRESS_SM(RETURN_ADRESS_SM);
 
-
+        // GLOBAL INTERFACE
+        ifetch_inst.EXCEPTION_SM(EXCEPTION_SM);
         ifetch_inst.CLK(CLK);
         ifetch_inst.RESET(RESET);
+
+        // IFETCH -> PRED_BRANCH_CACHE
+        pred_branch_cache_inst.PRED_BRANCH_CHECK_ADR_IN_SI(PRED_BRANCH_CHECK_ADR_IN_SI);
+
+        // EXEC -> PRED_BRANCH_CACHE
+        pred_branch_cache_inst.PRED_BRANCH_CMD_IN_SE(PRED_BRANCH_CMD_IN_SE);
+        pred_branch_cache_inst.PRED_BRANCH_WRITE_ADR_IN_SE(PRED_BRANCH_WRITE_ADR_IN_SE);
+        pred_branch_cache_inst.PRED_BRANCH_TARGET_ADR_IN_SE(PRED_BRANCH_TARGET_ADR_IN_SE);
+        pred_branch_cache_inst.PRED_BRANCH_CPT_IN_SE(PRED_BRANCH_CPT_IN_SE);
+        pred_branch_cache_inst.PRED_BRANCH_LRU_IN_SE(PRED_BRANCH_LRU_IN_SE);
+
+
+        // PRED_BRANCH_CACHE -> IFETCH
+        pred_branch_cache_inst.PRED_BRANCH_MISS_OUT_SP(PRED_BRANCH_MISS_OUT_SP);                     // MISS/HIT for the cache MISS = 1 HIT = 0
+        pred_branch_cache_inst.PRED_BRANCH_TARGET_ADR_OUT_SP(PRED_BRANCH_TARGET_ADR_OUT_SP);         // Branch target address
+        pred_branch_cache_inst.PRED_BRANCH_LRU_OUT_SP(PRED_BRANCH_LRU_OUT_SP);                       // Less Recent Use
+        pred_branch_cache_inst.PRED_BRANCH_CPT_OUT_SP(PRED_BRANCH_CPT_OUT_SP);                       // Branch taken times
+        pred_branch_cache_inst.PRED_BRANCH_PNT_OUT_SP(PRED_BRANCH_PNT_OUT_SP);                       // Branch taken target address
+
+        // GLOBAL INTERFACE
+        pred_branch_cache_inst.CLK(CLK);
+        pred_branch_cache_inst.RESET(RESET);
+
+
+
+
+
 
         dec_inst.DEC2IF_POP_SI(DEC2IF_POP_SI);
         dec_inst.DEC2IF_EMPTY_SD(DEC2IF_EMPTY_SI);
@@ -451,6 +505,47 @@ SC_MODULE(core) {
 
         dec_inst.CLK(CLK);
         dec_inst.RESET_N(RESET);
+
+
+        // DEC2EXE PRED_BRANCH_CACHE
+        dec_inst.PRED_BRANCH_ADR_RD(PRED_BRANCH_ADR_RD);        // address of the branch instruction
+        dec_inst.PRED_BRANCH_MISS_RD(PRED_BRANCH_MISS_RD);      // branch miss
+        dec_inst.PRED_BRANCH_TARGET_RD(PRED_BRANCH_TARGET_RD);  // target of the branch
+        dec_inst.PRED_BRANCH_CPT_RD(PRED_BRANCH_CPT_RD);        // branch counter
+        dec_inst.PRED_BRANCH_LRU_RD(PRED_BRANCH_LR_RD);         // branch last result
+        dec_inst.PRED_BRANCH_PNT_RD(PRED_BRANCH_PNT_RD);        // branch prediction index pointer
+        dec_inst.IS_BRANCH_RD(IS_BRANCH_RD);                    // is branch
+        dec_inst.PRED_BRANCH_TAKEN_RD(PRED_BRANCH_TAKEN_RD);    // branch taken
+
+        exec_inst.PRED_BRANCH_ADR_RD(PRED_BRANCH_ADR_RD);        // address of the branch instruction
+        exec_inst.PRED_BRANCH_MISS_RD(PRED_BRANCH_MISS_RD);      // branch miss
+        exec_inst.PRED_BRANCH_TARGET_RD(PRED_BRANCH_TARGET_RD);  // target of the branch
+        exec_inst.PRED_BRANCH_CPT_RD(PRED_BRANCH_CPT_RD);        // branch counter
+        exec_inst.PRED_BRANCH_LRU_RD(PRED_BRANCH_LR_RD);         // branch last result
+        exec_inst.PRED_BRANCH_PNT_RD(PRED_BRANCH_PNT_RD);        // branch prediction index pointer
+        exec_inst.IS_BRANCH_RD(IS_BRANCH_RD);                    // is branch
+        exec_inst.PRED_BRANCH_TAKEN_RD(PRED_BRANCH_TAKEN_RD);    // branch taken
+
+        //EXE2PRED_BRANCH_CACHE
+        exec_inst.PRED_BRANCH_CMD_IN_SE(PRED_BRANCH_CMD_IN_SE);
+        exec_inst.PRED_BRANCH_WRITE_ADR_IN_SE(PRED_BRANCH_WRITE_ADR_IN_SE);
+        exec_inst.PRED_BRANCH_TARGET_ADR_IN_SE(PRED_BRANCH_TARGET_ADR_IN_SE);
+        exec_inst.PRED_BRANCH_CPT_IN_SE(PRED_BRANCH_CPT_IN_SE);
+        exec_inst.PRED_BRANCH_LRU_IN_SE(PRED_BRANCH_LRU_IN_SE);
+        exec_inst.PRED_BRANCH_PNT_IN_SE(PRED_BRANCH_PNT_IN_SE);
+        
+
+        pred_branch_cache_inst.PRED_BRANCH_CMD_IN_SE(PRED_BRANCH_CMD_IN_SE);
+        pred_branch_cache_inst.PRED_BRANCH_WRITE_ADR_IN_SE(PRED_BRANCH_WRITE_ADR_IN_SE);
+        pred_branch_cache_inst.PRED_BRANCH_TARGET_ADR_IN_SE(PRED_BRANCH_TARGET_ADR_IN_SE);
+        pred_branch_cache_inst.PRED_BRANCH_CPT_IN_SE(PRED_BRANCH_CPT_IN_SE);
+        pred_branch_cache_inst.PRED_BRANCH_LRU_IN_SE(PRED_BRANCH_LRU_IN_SE);
+        pred_branch_cache_inst.PRED_BRANCH_PNT_IN_SE(PRED_BRANCH_PNT_IN_SE);
+
+
+
+
+
 
         exec_inst.RADR1_RD(BP_RADR1_RD);
         exec_inst.RADR2_RD(BP_RADR2_RD);
