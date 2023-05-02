@@ -86,17 +86,17 @@ SC_MODULE(ifetch) {
         sc_signal<sc_bv<IF2DEC_SIZE>> if2dec_in_si;
         sc_signal<sc_bv<IF2DEC_SIZE>> if2dec_out_si; 
 
-        sc_signal<bool>               pb_if2dec_PUSH_SI;
-        sc_signal<bool>               pb_if2dec_FULL_SI;
-        sc_signal<sc_bv<IF2DEC_SIZE>> pb_if2dec_in_si;
-        sc_signal<sc_bv<IF2DEC_SIZE>> pb_if2dec_out_si;  
+        sc_signal<bool>               PB_IF2DEC_PUSH_SI;
+        sc_signal<bool>               PB_IF2DEC_FULL_SI;
+        sc_signal<sc_bv<PC_IF2DEC_SIZE>> pb_if2dec_in_si;
+        sc_signal<sc_bv<PC_IF2DEC_SIZE>> pb_if2dec_out_si;  
 
         sc_signal<bool>               target_pc_empty_si;
         sc_signal<bool>               target_pc_full_si;
         sc_signal<bool>               target_pc_push_si;
         sc_signal<bool>               target_pc_pop_si;
-        sc_signal<sc_bv<IF2DEC_SIZE>> target_pc_in_si;
-        sc_signal<sc_bv<IF2DEC_SIZE>> target_pc_out_si; 
+        sc_signal<sc_bv<TARGET_PC_SIZE>> target_pc_in_si;
+        sc_signal<sc_bv<TARGET_PC_SIZE>> target_pc_out_si; 
 
         sc_signal<bool>               miss_ri;
         sc_signal<sc_uint<32>>        target_adr_ri;

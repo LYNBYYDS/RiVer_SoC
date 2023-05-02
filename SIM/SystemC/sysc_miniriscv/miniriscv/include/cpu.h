@@ -4,6 +4,7 @@
 #include "dec.h"
 #include "exec.h"
 #include "ifetch.h"
+#include "pred_branch_cache.h"
 #include "mem.h"
 #include "reg.h"
 #include "wbk.h"
@@ -196,6 +197,7 @@ SC_MODULE(cpu) {
 
     SC_CTOR(cpu)
         : ifetch_inst("ifetch"),
+          pred_branch_cache_inst("pred_branch_cache"),
           dec_inst("decod"),
           exec_inst("exec"),
           mem_inst("mem"),
@@ -233,20 +235,20 @@ SC_MODULE(cpu) {
                                 Pred_Branch_Cache
         ******************************************************/
 
-        pred_branch_cache.PRED_BRANCH_CHECK_ADR_IN_SI(PRED_BRANCH_CHECK_ADR_IN_SI);     
-        pred_branch_cache.PRED_BRANCH_CMD_IN_SE(PRED_BRANCH_CMD_IN_SE);           
-        pred_branch_cache.PRED_BRANCH_WRITE_ADR_IN_SE(PRED_BRANCH_WRITE_ADR_IN_SE);    
-        pred_branch_cache.PRED_BRANCH_TARGET_ADR_IN_SE(PRED_BRANCH_TARGET_ADR_IN_SE); 
-        pred_branch_cache.PRED_BRANCH_CPT_IN_SE(PRED_BRANCH_CPT_IN_SE);           
-        pred_branch_cache.PRED_BRANCH_LRU_IN_SE(PRED_BRANCH_LRU_IN_SE);                 
-        pred_branch_cache.PRED_BRANCH_PNT_IN_SE(PRED_BRANCH_PNT_IN_SE);  
+        pred_branch_cache_inst.PRED_BRANCH_CHECK_ADR_IN_SI(PRED_BRANCH_CHECK_ADR_IN_SI);     
+        pred_branch_cache_inst.PRED_BRANCH_CMD_IN_SE(PRED_BRANCH_CMD_IN_SE);           
+        pred_branch_cache_inst.PRED_BRANCH_WRITE_ADR_IN_SE(PRED_BRANCH_WRITE_ADR_IN_SE);    
+        pred_branch_cache_inst.PRED_BRANCH_TARGET_ADR_IN_SE(PRED_BRANCH_TARGET_ADR_IN_SE); 
+        pred_branch_cache_inst.PRED_BRANCH_CPT_IN_SE(PRED_BRANCH_CPT_IN_SE);           
+        pred_branch_cache_inst.PRED_BRANCH_LRU_IN_SE(PRED_BRANCH_LRU_IN_SE);                 
+        pred_branch_cache_inst.PRED_BRANCH_PNT_IN_SE(PRED_BRANCH_PNT_IN_SE);  
 
 
-        pred_branch_cache.PRED_BRANCH_MISS_OUT_SP(PRED_BRANCH_MISS_OUT_SP);               
-        pred_branch_cache.PRED_BRANCH_TARGET_ADR_OUT_SP(PRED_BRANCH_TARGET_ADR_OUT_SP);   
-        pred_branch_cache.PRED_BRANCH_LRU_OUT_SP(PRED_BRANCH_LRU_OUT_SP);          
-        pred_branch_cache.PRED_BRANCH_CPT_OUT_SP(PRED_BRANCH_CPT_OUT_SP);          
-        pred_branch_cache.PRED_BRANCH_PNT_OUT_SP(PRED_BRANCH_PNT_OUT_SP);                  
+        pred_branch_cache_inst.PRED_BRANCH_MISS_OUT_SP(PRED_BRANCH_MISS_OUT_SP);               
+        pred_branch_cache_inst.PRED_BRANCH_TARGET_ADR_OUT_SP(PRED_BRANCH_TARGET_ADR_OUT_SP);   
+        pred_branch_cache_inst.PRED_BRANCH_LRU_OUT_SP(PRED_BRANCH_LRU_OUT_SP);          
+        pred_branch_cache_inst.PRED_BRANCH_CPT_OUT_SP(PRED_BRANCH_CPT_OUT_SP);          
+        pred_branch_cache_inst.PRED_BRANCH_PNT_OUT_SP(PRED_BRANCH_PNT_OUT_SP);                  
 
         /*****************************************************
                                 Decod
@@ -360,7 +362,7 @@ SC_MODULE(cpu) {
 
         exec_inst.PRED_BRANCH_CMD_OUT_SE(PRED_BRANCH_CMD_IN_SE);
         exec_inst.PRED_BRANCH_WRITE_ADR_OUT_SE(PRED_BRANCH_WRITE_ADR_IN_SE);
-        exec_inst.PRED_BRANCH_TARGET_OUT_SE(PRED_BRANCH_TARGET_IN_SE);
+        exec_inst.PRED_BRANCH_TARGET_OUT_SE(PRED_BRANCH_TARGET_ADR_IN_SE);
         exec_inst.PRED_BRANCH_CPT_OUT_SE(PRED_BRANCH_CPT_IN_SE);
         exec_inst.PRED_BRANCH_LRU_OUT_SE(PRED_BRANCH_LRU_IN_SE);
         exec_inst.PRED_BRANCH_PNT_OUT_SE(PRED_BRANCH_PNT_IN_SE);
