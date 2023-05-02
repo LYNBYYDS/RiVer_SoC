@@ -269,6 +269,8 @@ SC_MODULE(decod) {
     fifo<32>           dec2if;
     fifo<DEC2EXE_SIZE> dec2exe;
 
+
+
     void concat_dec2exe();
     void unconcat_dec2exe();
     void decoding_instruction_type();

@@ -101,6 +101,7 @@ SC_MODULE(ifetch) {
         sc_signal<bool>               miss_ri;
         sc_signal<sc_uint<32>>        target_adr_ri;
         sc_signal<sc_uint<2>>         cpt_ri;
+        sc_signal<sc_uint<32>>        adr_si;
 
     void fetch_method();
     void trace(sc_trace_file * tf);

@@ -10,14 +10,14 @@ one, which will be the fifo input, and the fifo output is split in different sig
 
 void decod::concat_dec2exe() {
     sc_bv<DEC2EXE_SIZE> dec2exe_in_var;
-    dec2exe_in_var.range(199 ,168) = PC_RI;            // 
-    dec2exe_in_var[168]            = PRED_BRANCH_MISS_RI;           // 
-    dec2exe_in_var.range(167 ,136) = PRED_BRANCH_TARGET_ADR_RI;     // 
-    dec2exe_in_var.range(135 ,134) = PRED_BRANCH_CPT_RI;            // 
-    dec2exe_in_var[133]            = PRED_BRANCH_LRU_RI;            // 
-    dec2exe_in_var.range(131, 132) = PRED_BRANCH_PNT_RI;            // 
-    dec2exe_in_var[131]            = b_type_inst_sd;                  // 
-    dec2exe_in_var[130]            = jump_var;               // 
+    dec2exe_in_var.range(199 ,168) = PC_RI;            
+    dec2exe_in_var[168]            = PRED_BRANCH_MISS_RI;           
+    dec2exe_in_var.range(167 ,136) = PRED_BRANCH_TARGET_ADR_RI;     
+    dec2exe_in_var.range(135 ,134) = PRED_BRANCH_CPT_RI;            
+    dec2exe_in_var[133]            = PRED_BRANCH_LRU_RI;           
+    dec2exe_in_var.range(131, 132) = PRED_BRANCH_PNT_RI;           
+    dec2exe_in_var[131]            = b_type_inst_sd;                 
+    dec2exe_in_var[130]            = jump_sd;              
 
     dec2exe_in_var[129]            = block_bp_sd;
     dec2exe_in_var.range(128, 123) = RADR1_SD.read();
@@ -847,23 +847,31 @@ void decod::pc_inc() {
       This prevent a "delayed slot" like in MIPS.
     */
 
-    if (stall_sd)
+    if (stall_sd.read())
+    {
         IF2DEC_POP_SD = false;
         PB_IF2DEC_POP_SD = false;
+    }
     else
+    {
         IF2DEC_POP_SD = true;
         PB_IF2DEC_POP_SD = true;
+    }
 
-    if (jump_sd && !stall_sd && pb_fail)
+    if (jump_sd && !stall_sd.read() && pb_fail)
+    {
         IF2DEC_FLUSH_SD = true;
         PB_IF2DEC_FLUSH_SD = true;
+    }
     else
+    {
         IF2DEC_FLUSH_SD = false;
         PB_IF2DEC_FLUSH_SD = false;
+    }
 
     // DEC2EXE Gestion
 
-    if (stall_sd) {
+    if (stall_sd.read()) {
         dec2exe_push_sd.write(0);
     } else {
         dec2exe_push_sd.write(1);
