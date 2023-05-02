@@ -76,16 +76,22 @@ SC_MODULE(decod) {
     sc_in<sc_bv<32>>   INSTR_RI;  // The instruction coming from Ifetch
     sc_in<sc_uint<32>> PC_RI;     // The pc of the instruction being executed
     sc_in<bool>        IF2DEC_EMPTY_SI;
+    
+    sc_out<bool>       IF2DEC_POP_SD;    // the POP signal sent to Ifetch
+    sc_out<bool>       IF2DEC_FLUSH_SD;  // Signal sent to IFETCH to flush all instructions
 
-    sc_in<sc_uint<32>>  PRED_BRANCH_ADR_RI;
+    /*****************************************************
+                    Interface with pb_if2dec
+    ******************************************************/
+
     sc_in<bool>         PRED_BRANCH_MISS_RI;
     sc_in<sc_uint<32>>  PRED_BRANCH_TARGET_ADR_RI;
     sc_in<sc_uint<2>>   PRED_BRANCH_CPT_RI;
     sc_in<bool>         PRED_BRANCH_LRU_RI;
     sc_in<sc_uint<2>>   PRED_BRANCH_PNT_RI;
-
-    sc_out<bool>       IF2DEC_POP_SD;    // the POP signal sent to Ifetch
-    sc_out<bool>       IF2DEC_FLUSH_SD;  // Signal sent to IFETCH to flush all instructions
+    
+    sc_out<bool>        PB_IF2DEC_POP_SD;    // the POP signal sent to Ifetch
+    sc_out<bool>        PB_IF2DEC_FLUSH_SD;  // Signal sent to IFETCH to flush all instructions
 
     /*****************************************************
                     Interface with DEC2EXE
