@@ -79,6 +79,10 @@ void ifetch::fetch_method() {
         PD_IF2DEC_PUSH_SI = !stall;
         PD_IF2DEC_POP_SI = !stall;
     }
+                                 
+    // FIFO target_pc gestion
+    target_pc_push_si = true;
+    target_pc_pop_si  = true; 
 }
 
 void ifetch::trace(sc_trace_file* tf) {
