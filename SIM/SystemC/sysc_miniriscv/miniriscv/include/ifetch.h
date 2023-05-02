@@ -66,7 +66,7 @@ SC_MODULE(ifetch) {
 
     sc_out<bool>            PRED_BRANCH_MISS_RI;            // MISS/HIT for the cache MISS = 1 HIT = 0
     sc_out<sc_uint<32>>     PRED_BRANCH_ADR_RI;             // branch instruction address
-    sc_out<sc_unint<32>>    PRED_BRANCH_TARGET_ADR_RI;      // branch target address
+    sc_out<sc_uint<32>>    PRED_BRANCH_TARGET_ADR_RI;      // branch target address
     sc_out<sc_uint<2>>      PRED_BRANCH_PNT_RI;             // branch taken target address
     sc_out<bool>            PRED_BRANCH_LRU_RI;             // Less Recent Use
     sc_out<sc_uint<2>>      PRED_BRANCH_CPT_RI;             // branch taken times
@@ -91,7 +91,6 @@ SC_MODULE(ifetch) {
         sc_signal<sc_bv<IF2DEC_SIZE>> pb_if2dec_in_si;
         sc_signal<sc_bv<IF2DEC_SIZE>> pb_if2dec_out_si;  
 
-        sc_signal<bool>               target_pc_out_si;
         sc_signal<bool>               target_pc_empty_si;
         sc_signal<bool>               target_pc_full_si;
         sc_signal<bool>               target_pc_push_si;
