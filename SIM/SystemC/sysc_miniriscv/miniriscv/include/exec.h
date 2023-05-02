@@ -58,6 +58,27 @@ SC_MODULE(exec) {
     sc_in<bool>        MEM_LOAD_RD;
     sc_in<bool>        MEM_STORE_RD;
 
+    // Data sent to PRED_BRANCH_CACHE through EXE
+    sc_in<sc_uint<32>>  PRED_BRANCH_ADR_RD;
+    sc_in<bool>         PRED_BRANCH_MISS_RD;
+    sc_in<sc_uint<32>>  PRED_BRANCH_TARGET_ADR_RD;
+    sc_in<sc_uint<2>>   PRED_BRANCH_CPT_RD;
+    sc_in<bool>         PRED_BRANCH_LRU_RD;
+    sc_in<sc_uint<2>>   PRED_BRANCH_PNT_RD;
+    sc_in<bool>         IS_BRANCH_RD;
+    sc_in<bool>         BRANCH_TAKEN_RD;
+
+    /*****************************************************
+             Interface with EXE2PRED
+    ******************************************************/
+
+    sc_out<sc_uint<2>>  PRED_BRANCH_CMD_OUT_SE;         // The command sent to the PRED_BRANCH_CACHE
+    sc_out<sc_uint<32>> PRED_BRANCH_WRITE_ADR_OUT_SE;   // The address to write in the PRED_BRANCH_CACHE
+    sc_out<sc_uint<32>> PRED_BRANCH_TARGET_OUT_SE;      // The target address of the branch
+    sc_out<sc_uint<2>>  PRED_BRANCH_CPT_OUT_SE;         // The counter of the branch
+    sc_out<bool>        PRED_BRANCH_LRU_OUT_SE;         // The LRU bit of the branch
+    sc_out<sc_uint<2>>  PRED_BRANCH_PNT_OUT_SE;         // The pointer of the branch
+
     /*****************************************************
              Interface with EXE2MEM
     ******************************************************/
@@ -136,6 +157,8 @@ SC_MODULE(exec) {
     void fifo_unconcat();    // unconcatenet result from the fifo
     void manage_fifo();      // allow the push/pop of fifo exe2mem
 
+    void pred_branch_signals();  // setup signals for the pred branch cache
+
     void bypasses();  // allow the push/pop of fifo exe2mem
 
     void trace(sc_trace_file * tf);
@@ -182,5 +205,9 @@ SC_MODULE(exec) {
         sensitive << DEST_RM << MEM_RES_RM << DEST_RE << EXE_RES_RE << RADR1_RD << BLOCK_BP_RD
                   << DEST_RE << MEM_LOAD_RE << RADR2_RD << OP1_RD << OP2_RD << MEM_DATA_RD
                   << MEM_STORE_RD << MEM2WBK_EMPTY_SM << EXE2MEM_EMPTY_SE;
+        SC_METHOD(pred_branch_signals);
+        sensitive << PRED_BRANCH_ADR_RD << PRED_BRANCH_MISS_RD << PRED_BRANCH_TARGET_ADR_RD
+                  << PRED_BRANCH_CPT_RD << PRED_BRANCH_LRU_RD << PRED_BRANCH_PNT_RD
+                  << IS_BRANCH_RD << BRANCH_TAKEN_RD;
     }
 };

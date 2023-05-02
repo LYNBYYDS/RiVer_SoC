@@ -76,6 +76,14 @@ SC_MODULE(decod) {
     sc_in<sc_bv<32>>   INSTR_RI;  // The instruction coming from Ifetch
     sc_in<sc_uint<32>> PC_RI;     // The pc of the instruction being executed
     sc_in<bool>        IF2DEC_EMPTY_SI;
+
+    sc_in<sc_uint<32>>  PRED_BRANCH_ADR_RI;
+    sc_in<bool>         PRED_BRANCH_MISS_RI;
+    sc_in<sc_uint<32>>  PRED_BRANCH_TARGET_ADR_RI;
+    sc_in<sc_uint<2>>   PRED_BRANCH_CPT_RI;
+    sc_in<bool>         PRED_BRANCH_LRU_RI;
+    sc_in<sc_uint<2>>   PRED_BRANCH_PNT_RI;
+
     sc_out<bool>       IF2DEC_POP_SD;    // the POP signal sent to Ifetch
     sc_out<bool>       IF2DEC_FLUSH_SD;  // Signal sent to IFETCH to flush all instructions
 
@@ -86,6 +94,15 @@ SC_MODULE(decod) {
     sc_in<bool>                    DEC2EXE_POP_SE;  // The POP signal coming from EXE
     sc_out<bool>                   DEC2EXE_EMPTY_SD;
     sc_signal<sc_bv<DEC2EXE_SIZE>> dec2exe_out_sd;
+
+    sc_out<sc_uint<32>>  PRED_BRANCH_ADR_RD;
+    sc_out<bool>         PRED_BRANCH_MISS_RD;
+    sc_out<sc_uint<32>>  PRED_BRANCH_TARGET_ADR_RD;
+    sc_out<sc_uint<2>>   PRED_BRANCH_CPT_RD;
+    sc_out<bool>         PRED_BRANCH_LRU_RD;
+    sc_out<sc_uint<2>>   PRED_BRANCH_PNT_RD;
+    sc_out<bool>         IS_BRANCH_RD;
+    sc_out<bool>         BRANCH_TAKEN_RD;     // Signals to transfer to EXE
 
     /*****************************************************
                             BYPASSES

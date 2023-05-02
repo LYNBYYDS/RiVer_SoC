@@ -178,6 +178,49 @@ void exec::bypasses() {
     }
 }
 
+void exec::pred_branch_signals(){
+    int cmd = 0b00;
+    if (PRED_BRANCH_MISS_RD.read() && IS_BRANCH_RD.read()) {
+        cmd = 0b01;
+    } else if (PRED_BRANCH_MISS_RD.read() && !IS_BRANCH_RD.read()) {
+        cmd = 0b00;
+    } else if (!PRED_BRANCH_MISS_RD.read() && IS_BRANCH_RD.read()) {
+        cmd = 0b10;
+    }
+    PRED_BRANCH_CMD_OUT_SE.write(cmd);
+
+    if (BRANCH_TAKEN_RD.read() && cmd == 0b01) {
+        PRED_BRANCH_CPT_OUT_SE.write(0b10);
+        PRED_BRANCH_WRITE_ADR_OUT_SE.write(PRED_BRANCH_ADR_RD.read());
+        PRED_BRANCH_TARGET_OUT_SE.write(PRED_BRANCH_TARGET_ADR_RD.read());
+        PRED_BRANCH_LRU_OUT_SE.write(PRED_BRANCH_LRU_RD.read());
+        PRED_BRANCH_PNT_OUT_SE.write(PRED_BRANCH_PNT_RD.read());
+    } else if (!BRANCH_TAKEN_RD.read() && cmd == 0b01) {
+        PRED_BRANCH_CPT_OUT_SE.write(0b01);
+        PRED_BRANCH_WRITE_ADR_OUT_SE.write(PRED_BRANCH_ADR_RD.read());
+        PRED_BRANCH_TARGET_OUT_SE.write(PRED_BRANCH_TARGET_ADR_RD.read());
+        PRED_BRANCH_LRU_OUT_SE.write(PRED_BRANCH_LRU_RD.read());
+        PRED_BRANCH_PNT_OUT_SE.write(PRED_BRANCH_PNT_RD.read());
+    } else if (cmd == 0b10) {
+        int counter = PRED_BRANCH_CPT_RD.read();
+        if (counter != 0b00 && !BRANCH_TAKEN_RD.read())
+        {
+            counter -= 1;
+        }
+        else if(counter != 0b11 && BRANCH_TAKEN_RD.read())
+        {
+            counter += 1;
+        }
+        PRED_BRANCH_CPT_OUT_SE.write(counter);
+        PRED_BRANCH_WRITE_ADR_OUT_SE.write(0);
+        PRED_BRANCH_TARGET_OUT_SE.write(0);
+        PRED_BRANCH_LRU_OUT_SE.write(PRED_BRANCH_LRU_RD.read());
+        PRED_BRANCH_PNT_OUT_SE.write(PRED_BRANCH_PNT_RD.read());
+    }
+
+
+}
+
 void exec::trace(sc_trace_file* tf) {
     sc_trace(tf, OP1_RD, GET_NAME(OP1_RD));  // can contains CSR if CSR_type_operation_RD == 1
     sc_trace(tf, OP2_RD, GET_NAME(OP2_RD));
