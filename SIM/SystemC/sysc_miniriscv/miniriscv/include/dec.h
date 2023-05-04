@@ -305,7 +305,9 @@ SC_MODULE(decod) {
         sensitive << dec2exe_in_sd << exe_op1_sd << exe_op2_sd << exe_cmd_sd << exe_neg_op2_sd
                   << exe_wb_sd << mem_data_sd << mem_load_sd << mem_store_sd << mem_sign_extend_sd
                   << mem_size_sd << optype_sd << adr_dest_sd << slti_i_sd << slt_i_sd << sltiu_i_sd
-                  << sltu_i_sd << RADR1_SD << RADR2_SD << block_bp_sd;
+                  << sltu_i_sd << RADR1_SD << RADR2_SD << block_bp_sd << PC_RI << PRED_BRANCH_MISS_RI
+                  << PRED_BRANCH_TARGET_ADR_RI << PRED_BRANCH_CPT_RI << PRED_BRANCH_LRU_RI << PRED_BRANCH_PNT_RI
+                  << b_type_inst_sd << jump_sd;              
         SC_METHOD(unconcat_dec2exe)
         sensitive << dec2exe_out_sd;
 

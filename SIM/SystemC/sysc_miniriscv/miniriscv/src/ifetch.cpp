@@ -5,15 +5,16 @@ void ifetch::fetch_method() {
         if (!miss_ri.read() && cpt_ri.read() >= 2) {    // If the last instruction is a branchinstruction and the prediction is branch success
             adr_si.write(target_adr_ri.read()); // take the target address to search in icache also in the pred branch cache
         } else {
-            adr_si.write((sc_bv_base)PC_RD.read());         // otherwise use nest-pc to search in the icache and the pred branch cache
+            adr_si.write((sc_bv_base)PC_RD.read());         // otherwise use next-pc to search in the icache and the pred branch cache
         }
         ADR_SI.write(adr_si.read());
+        
 
     // Let the pred cache search 
         PRED_BRANCH_CHECK_ADR_IN_SI.write(adr_si.read());
 
     // FIFO pred_branch concat & unconcat
-        sc_bv<PC_IF2DEC_SIZE> pb_if2dec_in_var;
+        sc_bv<PB_IF2DEC_SIZE> pb_if2dec_in_var;
         pb_if2dec_in_var.range(69, 68)    =   PRED_BRANCH_PNT_OUT_SP.read();                      // PNT
         pb_if2dec_in_var.range(67, 66)    =   PRED_BRANCH_CPT_OUT_SP.read();                      // CPT
         pb_if2dec_in_var[65]              =   PRED_BRANCH_LRU_OUT_SP.read();                                  // LRU
@@ -22,7 +23,7 @@ void ifetch::fetch_method() {
         pb_if2dec_in_var[0]               =   PRED_BRANCH_MISS_OUT_SP.read();                                 // MISS/HIT
         pb_if2dec_in_si.write(pb_if2dec_in_var);
 
-        sc_bv<PC_IF2DEC_SIZE> pb_if2dec_out_var = pb_if2dec_out_si.read();
+        sc_bv<PB_IF2DEC_SIZE> pb_if2dec_out_var = pb_if2dec_out_si.read();
         PRED_BRANCH_PNT_RI.write((sc_bv_base)pb_if2dec_out_var.range(69, 68));            // CPT
         PRED_BRANCH_CPT_RI.write((sc_bv_base)pb_if2dec_out_var.range(67, 66));             // Less Recent Use
         PRED_BRANCH_LRU_RI.write((bool)pb_if2dec_out_var[65]);                        // branch taken target address
@@ -80,7 +81,11 @@ void ifetch::fetch_method() {
                                  
     // FIFO target_pc gestion
     target_pc_push_si = true;
-    target_pc_pop_si  = true; 
+    if (DEC2IF_EMPTY_SD){
+        target_pc_pop_si  = false; 
+    } else {
+        target_pc_pop_si = true;
+    }
 }
 
 void ifetch::trace(sc_trace_file* tf) {
@@ -102,5 +107,6 @@ void ifetch::trace(sc_trace_file* tf) {
     sc_trace(tf, RESET, GET_NAME(RESET));
     sc_trace(tf, if2dec_in_si, GET_NAME(if2dec_in_si));
     sc_trace(tf, if2dec_out_si, GET_NAME(if2dec_out_si));
+    sc_trace(tf, adr_si, GET_NAME(adr_si));
     if2dec.trace(tf);
 }

@@ -108,7 +108,7 @@ void pred_branch_cache::trace(sc_trace_file* tf) {
     sc_trace(tf, PRED_BRANCH_LRU_OUT_SP, GET_NAME(PRED_BRANCH_LRU_OUT_SP));
     sc_trace(tf, PRED_BRANCH_PNT_OUT_SP, GET_NAME(PRED_BRANCH_PNT_OUT_SP));
     sc_trace(tf, CLK, GET_NAME(CLK));
-    sc_trace(tf, RESET_N, GET_NAME(RESET_N));
+    sc_trace(tf, RESET, GET_NAME(RESET));
     sc_trace(tf, inverse_lru, GET_NAME(inverse_lru));
     sc_trace(tf, p_nb, GET_NAME(p_nb));
 

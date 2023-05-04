@@ -268,6 +268,24 @@ void exec::trace(sc_trace_file* tf) {
     sc_trace(tf, mem_store_re, GET_NAME(mem_store_re));
     sc_trace(tf, BLOCK_BP_RD, GET_NAME(BLOCK_BP_RD));
     sc_trace(tf, invalid_operand_se, GET_NAME(invalid_operand_se));
+
+    sc_trace(tf, PRED_BRANCH_ADR_RD, GET_NAME(PRED_BRANCH_ADR_RD));
+    sc_trace(tf, PRED_BRANCH_MISS_RD, GET_NAME(PRED_BRANCH_MISS_RD));
+    sc_trace(tf, PRED_BRANCH_TARGET_ADR_RD, GET_NAME(PRED_BRANCH_TARGET_ADR_RD));
+    sc_trace(tf, PRED_BRANCH_CPT_RD, GET_NAME(PRED_BRANCH_CPT_RD));
+    sc_trace(tf, PRED_BRANCH_LRU_RD, GET_NAME(PRED_BRANCH_LRU_RD));
+    sc_trace(tf, PRED_BRANCH_PNT_RD, GET_NAME(PRED_BRANCH_PNT_RD));
+    sc_trace(tf, IS_BRANCH_RD, GET_NAME(IS_BRANCH_RD));
+    sc_trace(tf, BRANCH_TAKEN_RD, GET_NAME(BRANCH_TAKEN_RD));
+
+    sc_trace(tf, PRED_BRANCH_CMD_OUT_SE, GET_NAME(PRED_BRANCH_CMD_OUT_SE));
+    sc_trace(tf, PRED_BRANCH_WRITE_ADR_OUT_SE, GET_NAME(PRED_BRANCH_WRITE_ADR_OUT_SE));
+    sc_trace(tf, PRED_BRANCH_TARGET_OUT_SE, GET_NAME(PRED_BRANCH_TARGET_OUT_SE));
+    sc_trace(tf, PRED_BRANCH_CPT_OUT_SE, GET_NAME(PRED_BRANCH_CPT_OUT_SE));
+    sc_trace(tf, PRED_BRANCH_LRU_OUT_SE, GET_NAME(PRED_BRANCH_LRU_OUT_SE));
+    sc_trace(tf, PRED_BRANCH_PNT_OUT_SE, GET_NAME(PRED_BRANCH_PNT_OUT_SE));
+
+
     alu_inst.trace(tf);
     shifter_inst.trace(tf);
     fifo_inst.trace(tf);

@@ -77,7 +77,7 @@ SC_MODULE(ifetch) {
 
     // Component instanciation
         fifo<IF2DEC_SIZE> if2dec;
-        fifo<PC_IF2DEC_SIZE> pb_if2dec;
+        fifo<PB_IF2DEC_SIZE> pb_if2dec;
         fifo<TARGET_PC_SIZE> target_pc;
 
     // Internals signals :
@@ -88,8 +88,8 @@ SC_MODULE(ifetch) {
 
         sc_signal<bool>               PB_IF2DEC_PUSH_SI;
         sc_signal<bool>               PB_IF2DEC_FULL_SI;
-        sc_signal<sc_bv<PC_IF2DEC_SIZE>> pb_if2dec_in_si;
-        sc_signal<sc_bv<PC_IF2DEC_SIZE>> pb_if2dec_out_si;  
+        sc_signal<sc_bv<PB_IF2DEC_SIZE>> pb_if2dec_in_si;
+        sc_signal<sc_bv<PB_IF2DEC_SIZE>> pb_if2dec_out_si;  
 
         sc_signal<bool>               target_pc_empty_si;
         sc_signal<bool>               target_pc_full_si;
@@ -137,6 +137,8 @@ SC_MODULE(ifetch) {
 
         SC_METHOD(fetch_method);
         sensitive << PC_RD 
+                  << PRED_BRANCH_MISS_OUT_SP << PRED_BRANCH_TARGET_ADR_OUT_SP << PRED_BRANCH_PNT_OUT_SP
+                  << PRED_BRANCH_LRU_OUT_SP << PRED_BRANCH_CPT_OUT_SP
                   << IC_INST_SI << DEC2IF_EMPTY_SD << IF2DEC_FULL_SI << IF2DEC_FLUSH_SD
                   << IC_STALL_SI << RESET;
     }
