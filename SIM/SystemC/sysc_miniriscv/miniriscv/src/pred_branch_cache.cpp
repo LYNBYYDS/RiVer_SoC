@@ -42,6 +42,7 @@ void pred_branch_cache::pred_write() {
 
     p_nb = 0;                                                                       // reset number of case used 
     inverse_lru = 0;                                                                // reset LRU LRU = 0 means all low priority
+    //PRED_BRANCH_MISS_OUT_SP.write(true);
 
     wait(1);
  

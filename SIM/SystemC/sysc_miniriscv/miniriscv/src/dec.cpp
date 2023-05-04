@@ -10,12 +10,12 @@ one, which will be the fifo input, and the fifo output is split in different sig
 
 void decod::concat_dec2exe() {
     sc_bv<DEC2EXE_SIZE> dec2exe_in_var;
-    dec2exe_in_var.range(199 ,168) = PC_RI;            
+    dec2exe_in_var.range(200 ,169) = PC_RI;            
     dec2exe_in_var[168]            = PRED_BRANCH_MISS_RI;           
     dec2exe_in_var.range(167 ,136) = PRED_BRANCH_TARGET_ADR_RI;     
     dec2exe_in_var.range(135 ,134) = PRED_BRANCH_CPT_RI;            
     dec2exe_in_var[133]            = PRED_BRANCH_LRU_RI;           
-    dec2exe_in_var.range(131, 132) = PRED_BRANCH_PNT_RI;           
+    dec2exe_in_var.range(132, 131) = PRED_BRANCH_PNT_RI;           
     dec2exe_in_var[131]            = b_type_inst_sd;                 
     dec2exe_in_var[130]            = jump_sd;              
 
@@ -46,12 +46,12 @@ void decod::unconcat_dec2exe() {
     sc_bv<DEC2EXE_SIZE> dec2exe_out_var = dec2exe_out_sd.read();
 
 
-    PRED_BRANCH_ADR_RD.write((sc_bv_base)dec2exe_out_var.range(199 ,168));
+    PRED_BRANCH_ADR_RD.write((sc_bv_base)dec2exe_out_var.range(200 ,169));
     PRED_BRANCH_MISS_RD.write((bool)dec2exe_out_var[168]);
     PRED_BRANCH_TARGET_ADR_RD.write((sc_bv_base)dec2exe_out_var.range(167 ,136));
     PRED_BRANCH_CPT_RD.write((sc_bv_base)dec2exe_out_var.range(135 ,134));
     PRED_BRANCH_LRU_RD.write((bool)dec2exe_out_var[133]);
-    PRED_BRANCH_PNT_RD.write((sc_bv_base)dec2exe_out_var.range(131, 132));
+    PRED_BRANCH_PNT_RD.write((sc_bv_base)dec2exe_out_var.range(132, 131));
     IS_BRANCH_RD.write((bool)dec2exe_out_var[131]);
     BRANCH_TAKEN_RD.write((bool)dec2exe_out_var[130]);
 

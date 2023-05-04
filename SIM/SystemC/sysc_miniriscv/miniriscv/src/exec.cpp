@@ -212,8 +212,8 @@ void exec::pred_branch_signals(){
             counter += 1;
         }
         PRED_BRANCH_CPT_OUT_SE.write(counter);
-        PRED_BRANCH_WRITE_ADR_OUT_SE.write(0);
-        PRED_BRANCH_TARGET_OUT_SE.write(0);
+        PRED_BRANCH_WRITE_ADR_OUT_SE.write(0x00000000);
+        PRED_BRANCH_TARGET_OUT_SE.write(0x00000000);
         PRED_BRANCH_LRU_OUT_SE.write(PRED_BRANCH_LRU_RD.read());
         PRED_BRANCH_PNT_OUT_SE.write(PRED_BRANCH_PNT_RD.read());
     }
