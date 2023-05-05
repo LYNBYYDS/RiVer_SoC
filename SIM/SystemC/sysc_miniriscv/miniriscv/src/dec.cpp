@@ -12,7 +12,7 @@ void decod::concat_dec2exe() {
     sc_bv<DEC2EXE_SIZE> dec2exe_in_var;
     dec2exe_in_var.range(200 ,169) = PC_RI;            
     dec2exe_in_var[168]            = PRED_BRANCH_MISS_RI;           
-    dec2exe_in_var.range(167 ,136) = PRED_BRANCH_TARGET_ADR_RI;     
+    dec2exe_in_var.range(167 ,136) = PC_RI.read() + offset_branch_sd.read();         
     dec2exe_in_var.range(135 ,134) = PRED_BRANCH_CPT_RI;            
     dec2exe_in_var[133]            = PRED_BRANCH_LRU_RI;           
     dec2exe_in_var.range(132, 131) = PRED_BRANCH_PNT_RI;           
