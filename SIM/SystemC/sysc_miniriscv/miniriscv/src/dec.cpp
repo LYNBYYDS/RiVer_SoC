@@ -797,10 +797,13 @@ void decod::pc_inc() {
         // if dec2if is full, a new value cannot be pushed to IFetch, no PC is not changed
         WRITE_PC_ENABLE_SD = 0;
         dec2if_push_sd     = 0;
-    } else if (IF2DEC_EMPTY_SI || !jump_sd) {
-        // If there is no jump, (or if the instruction is invalid), PC is just incremented by 4
+    } 
+
+    
+    else if (IF2DEC_EMPTY_SI || !jump_sd) {
+        
         // If the instruction is branch instruction in the prediction branch cache 
-        if (!pb_miss){
+        if (!pb_miss && !IF2DEC_EMPTY_SI && !stall_sd){
             // If the prediction is not jump
             if (!pb_taken){
                 pc_out             = pc + 8;
@@ -847,7 +850,7 @@ void decod::pc_inc() {
       This prevent a "delayed slot" like in MIPS.
     */
 
-    if (stall_sd.read())
+    if (stall_sd)
     {
         IF2DEC_POP_SD = false;
         PB_IF2DEC_POP_SD = false;
@@ -858,7 +861,7 @@ void decod::pc_inc() {
         PB_IF2DEC_POP_SD = true;
     }
 
-    if (jump_sd && !stall_sd.read() && pb_fail)
+    if ((pb_fail && !stall_sd) || (jump_sd && !stall_sd && pb_miss ))
     {
         IF2DEC_FLUSH_SD = true;
         PB_IF2DEC_FLUSH_SD = true;
@@ -871,7 +874,7 @@ void decod::pc_inc() {
 
     // DEC2EXE Gestion
 
-    if (stall_sd.read()) {
+    if (stall_sd) {
         dec2exe_push_sd.write(0);
     } else {
         dec2exe_push_sd.write(1);
