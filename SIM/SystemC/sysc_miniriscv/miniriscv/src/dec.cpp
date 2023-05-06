@@ -764,7 +764,7 @@ It is necessary in the following cases :
 */
 
 void decod::stall_method() {
-    stall_sd = (invalid_operand_sd && (b_type_inst_sd || jalr_type_inst_sd || j_type_inst_sd)) ||
+    stall_sd = invalid_operand_sd ||
                block_in_dec_sd || IF2DEC_EMPTY_SI || dec2exe_full_sd;
 }
 
@@ -805,10 +805,11 @@ void decod::pc_inc() {
         // If the instruction is branch instruction in the prediction branch cache 
         if (pb_taken && !IF2DEC_EMPTY_SI && !stall_sd) {
 
-            pc_out             = pc+4;
+            pc_out             = pc;
             WRITE_PC_ENABLE_SD = 1;
             dec2if_push_sd     = 1;
-        }else{
+        }
+        else{
             pc_out             = pc + 4;
             WRITE_PC_ENABLE_SD = 1;
             dec2if_push_sd     = 1;
