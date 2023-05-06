@@ -264,6 +264,13 @@ SC_MODULE(decod) {
     sc_signal<bool> mem_sign_extend_sd;
     sc_signal<bool> block_bp_sd;
 
+    sc_signal<bool> debug1;
+    sc_signal<bool> debug2;
+    sc_signal<bool> debug3;
+    sc_signal<bool> debug4;
+    sc_signal<bool> pb_taken_sd;
+    sc_signal<sc_uint<32>> pc_out_sd;
+
     // Instance used :
 
     fifo<32>           dec2if;
