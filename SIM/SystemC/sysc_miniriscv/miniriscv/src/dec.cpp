@@ -767,8 +767,8 @@ void decod::pc_inc() {
     sc_uint<32> pc_out            = pc;
     sc_uint<32> offset_branch_var = offset_branch_sd.read();
 
-    if (b_type_inst_sd && jump_sd && is_ta)
-    b_fail_sd = 1;
+    //if (b_type_inst_sd && jump_sd && is_ta)
+    //b_fail_sd = 1;
 
     if (dec2if_full_sd) {
         // if dec2if is full, a new value cannot be pushed to IFetch, no PC is not changed
@@ -802,7 +802,7 @@ void decod::pc_inc() {
     else
         IF2DEC_POP_SD = true;
 
-    if (b_fail_sd && j_type_inst_sd && !stall_sd)
+    if (jump_sd && !stall_sd)
         IF2DEC_FLUSH_SD = true;
     else
         IF2DEC_FLUSH_SD = false;

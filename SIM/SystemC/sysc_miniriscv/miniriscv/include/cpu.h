@@ -176,6 +176,7 @@ SC_MODULE(cpu) {
 
     ifetch ifetch_inst;
     decod  dec_inst;
+    pred_branch_cache pred_branch_cache_inst;
     exec   exec_inst;
     mem    mem_inst;
     wbk    wbk_inst;
@@ -193,6 +194,7 @@ SC_MODULE(cpu) {
     SC_CTOR(cpu)
         : ifetch_inst("ifetch"),
           dec_inst("decod"),
+          pred_branch_cache_inst("pred_branch_cache"),
           exec_inst("exec"),
           mem_inst("mem"),
           wbk_inst("wbk"),
