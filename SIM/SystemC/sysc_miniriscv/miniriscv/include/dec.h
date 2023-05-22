@@ -336,6 +336,8 @@ SC_MODULE(decod) {
 
         SC_METHOD(pc_inc)
         sensitive << CLK.pos() << READ_PC_SR << offset_branch_sd << inc_pc_sd << jump_sd << PC_RI
+            << PRED_BRANCH_MISS_OUT_SP << PRED_BRANCH_PNT_OUT_SP << PRED_BRANCH_TARGET_ADR_OUT_SP 
+            << b_type_inst_sd << PRED_BRANCH_CPT_RD << PRED_BRANCH_MISS_RD << j_type_inst_sd
                   << dec2if_full_sd << IF2DEC_EMPTY_SI << stall_sd;
 
         SC_METHOD(bypasses);
