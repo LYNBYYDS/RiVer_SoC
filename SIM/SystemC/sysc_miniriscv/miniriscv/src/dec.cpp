@@ -745,7 +745,8 @@ It is necessary in the following cases :
 */
 
 void decod::stall_method() {
-    stall_sd = (invalid_operand_sd && (b_type_inst_sd || jalr_type_inst_sd || j_type_inst_sd)) ||
+
+    stall_sd = (invalid_operand_sd && (b_type_inst_sd &&  || jalr_type_inst_sd || j_type_inst_sd)) ||
                block_in_dec_sd || IF2DEC_EMPTY_SI || dec2exe_full_sd;
 }
 
@@ -767,20 +768,24 @@ void decod::pc_inc() {
     sc_uint<32> pc_out            = pc;
     sc_uint<32> offset_branch_var = offset_branch_sd.read();
 
-    //if (b_type_inst_sd && jump_sd && is_ta)
-    //b_fail_sd = 1;
+    
+    pred_branch_success_sd = (b_type_inst_sd && ((PRED_BRANCH_CPT_RD.read() >= 2 && !PRED_BRANCH_MISS_RD.read()) == jump_sd));
+    // If the instruction decoding is branch instruction and the predection i did on last cycle is same with the decode
+    // in this cycle    
+    
 
     if (dec2if_full_sd) {
         // if dec2if is full, a new value cannot be pushed to IFetch, no PC is not changed
         WRITE_PC_ENABLE_SD = 0;
         dec2if_push_sd     = 0;
-    } else if (IF2DEC_EMPTY_SI || !jump_sd) {
-        // If there is no jump, (or if the instruction is invalid), PC is just incremented by 4
+    } else if (IF2DEC_EMPTY_SI || !jump_sd || (jump_sd && !stall_sd && pred_branch_success_sd)) {
+        // If there is no jump, or there is a jump with correct predection (or if the instruction is invalid),
+        // PC is just incremented by 4
         pc_out             = pc + 4;
         WRITE_PC_ENABLE_SD = 1;
         dec2if_push_sd     = 1;
-    } else if (jump_sd && !IF2DEC_EMPTY_SI && !stall_sd) {
-        // If there is a jump (and the instruction is valid) we jump
+    } else if (jump_sd && !pred_branch_success_sd && !IF2DEC_EMPTY_SI && !stall_sd) {
+        // If there is a jump and the predection is not correct(and the instruction is valid) we jump
         // We need to wait for the end of stalls for the offset to be computed
         pc_out             = PC_RI.read() + offset_branch_sd.read();
         WRITE_PC_ENABLE_SD = 1;
@@ -802,7 +807,7 @@ void decod::pc_inc() {
     else
         IF2DEC_POP_SD = true;
 
-    if (jump_sd && !stall_sd)
+    if ((j_type_inst_sd || !pred_branch_success_sd) && !stall_sd)
         IF2DEC_FLUSH_SD = true;
     else
         IF2DEC_FLUSH_SD = false;
@@ -813,6 +818,11 @@ void decod::pc_inc() {
         dec2exe_push_sd.write(0);
     } else {
         dec2exe_push_sd.write(1);
+    }
+
+    if (!PRED_BRANCH_MISS_OUT_SP.read() && PRED_BRANCH_PNT_OUT_SP.read() >= 2)
+    {
+        pc_out = PRED_BRANCH_TARGET_ADR_OUT_SP.read();
     }
 
     WRITE_PC_SD  = pc_out;
