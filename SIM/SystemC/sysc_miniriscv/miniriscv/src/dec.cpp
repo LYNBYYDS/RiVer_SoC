@@ -10,15 +10,6 @@ one, which will be the fifo input, and the fifo output is split in different sig
 
 void decod::concat_dec2exe() {
     sc_bv<DEC2EXE_SIZE> dec2exe_in_var;
-    dec2exe_in_var.range(200 ,169) = PC_RI;            
-    dec2exe_in_var[168]            = PRED_BRANCH_MISS_RI;           
-    dec2exe_in_var.range(167 ,136) = PC_RI.read() + offset_branch_sd.read();         
-    dec2exe_in_var.range(135 ,134) = PRED_BRANCH_CPT_RI;            
-    dec2exe_in_var[133]            = PRED_BRANCH_LRU_RI;           
-    dec2exe_in_var.range(132, 131) = PRED_BRANCH_PNT_RI;           
-    dec2exe_in_var[131]            = b_type_inst_sd;                 
-    dec2exe_in_var[130]            = jump_sd;              
-
     dec2exe_in_var[129]            = block_bp_sd;
     dec2exe_in_var.range(128, 123) = RADR1_SD.read();
     dec2exe_in_var.range(122, 117) = RADR2_SD.read();
@@ -44,16 +35,6 @@ void decod::concat_dec2exe() {
 }
 void decod::unconcat_dec2exe() {
     sc_bv<DEC2EXE_SIZE> dec2exe_out_var = dec2exe_out_sd.read();
-
-
-    PRED_BRANCH_ADR_RD.write((sc_bv_base)dec2exe_out_var.range(200 ,169));
-    PRED_BRANCH_MISS_RD.write((bool)dec2exe_out_var[168]);
-    PRED_BRANCH_TARGET_ADR_RD.write((sc_bv_base)dec2exe_out_var.range(167 ,136));
-    PRED_BRANCH_CPT_RD.write((sc_bv_base)dec2exe_out_var.range(135 ,134));
-    PRED_BRANCH_LRU_RD.write((bool)dec2exe_out_var[133]);
-    PRED_BRANCH_PNT_RD.write((sc_bv_base)dec2exe_out_var.range(132, 131));
-    IS_BRANCH_RD.write((bool)dec2exe_out_var[131]);
-    BRANCH_TAKEN_RD.write((bool)dec2exe_out_var[130]);
 
     BLOCK_BP_RD.write((bool)dec2exe_out_var[129]);
 
@@ -764,7 +745,7 @@ It is necessary in the following cases :
 */
 
 void decod::stall_method() {
-    stall_sd = invalid_operand_sd ||
+    stall_sd = (invalid_operand_sd && (b_type_inst_sd || jalr_type_inst_sd || j_type_inst_sd)) ||
                block_in_dec_sd || IF2DEC_EMPTY_SI || dec2exe_full_sd;
 }
 
@@ -786,144 +767,46 @@ void decod::pc_inc() {
     sc_uint<32> pc_out            = pc;
     sc_uint<32> offset_branch_var = offset_branch_sd.read();
 
-    // if the instruction is in the pred branch cache
-    bool pb_miss = PRED_BRANCH_MISS_RI.read();
-    // If the instruction has been predicted as taken 
-    bool pb_taken = (!pb_miss) && (PRED_BRANCH_CPT_RI.read() >= 2);
-    // If the prediction fail
-    bool pb_fail = (!pb_miss) && ((pb_taken && !jump_sd) || (!pb_taken && jump_sd));
-    
+    if (b_type_inst_sd && jump_sd && is_ta)
+    b_fail_sd = 1;
+
     if (dec2if_full_sd) {
         // if dec2if is full, a new value cannot be pushed to IFetch, no PC is not changed
         WRITE_PC_ENABLE_SD = 0;
         dec2if_push_sd     = 0;
-    } 
-
-    
-    else if (IF2DEC_EMPTY_SI || !jump_sd) {
-        
-        // If the instruction is branch instruction in the prediction branch cache 
-        if (pb_taken && !IF2DEC_EMPTY_SI && !stall_sd) {
-
-            pc_out             = pc;
-            WRITE_PC_ENABLE_SD = 1;
-            dec2if_push_sd     = 1;
-        }
-        else{
-            pc_out             = pc + 4;
-            WRITE_PC_ENABLE_SD = 1;
-            dec2if_push_sd     = 1;
-        }
+    } else if (IF2DEC_EMPTY_SI || !jump_sd) {
+        // If there is no jump, (or if the instruction is invalid), PC is just incremented by 4
+        pc_out             = pc + 4;
+        WRITE_PC_ENABLE_SD = 1;
+        dec2if_push_sd     = 1;
     } else if (jump_sd && !IF2DEC_EMPTY_SI && !stall_sd) {
         // If there is a jump (and the instruction is valid) we jump
         // We need to wait for the end of stalls for the offset to be computed
-        if (!pb_miss){
-            // If the prediction is not jump
-            if (!pb_taken){
-                pc_out             = pc + offset_branch_sd.read();
-                WRITE_PC_ENABLE_SD = 1;
-                dec2if_push_sd     = 1;
-            }else{
-                pc_out             = PC_RI.read()+4;
-                WRITE_PC_ENABLE_SD = 1;
-                dec2if_push_sd     = 1;
-            }
-        }else{
-            pc_out             = pc + offset_branch_sd.read()-4;
-            WRITE_PC_ENABLE_SD = 1;
-            dec2if_push_sd     = 1;
-        }
+        pc_out             = PC_RI.read() + offset_branch_sd.read();
+        WRITE_PC_ENABLE_SD = 1;
+        dec2if_push_sd     = 1;
     } else {
         // Aside from these cases, do nothing
         WRITE_PC_ENABLE_SD = 0;
         dec2if_push_sd     = 0;
     }
-    pc_out_sd.write(pc_out);
-    /* IF2DEC pb_if2dec Gestion
+
+    /* IF2DEC Gestion
     - We POP when there is no stall, meaning when an instruction was executed.
     - We FLUSH the fifo, leaning we remove the data inside, when there is a jump.
       This prevent a "delayed slot" like in MIPS.
     */
-    if (pb_taken) {
-        pb_taken_sd.write(1);
-            if (jump_sd && !stall_sd) 
-            {
-                IF2DEC_POP_SD.write(1);
-                PB_IF2DEC_POP_SD.write(1);
-                IF2DEC_FLUSH_SD.write(0);
-                PB_IF2DEC_FLUSH_SD.write(0);
-            }
-            else if (!jump_sd && !stall_sd) 
-            {
-                IF2DEC_POP_SD.write(1);
-                PB_IF2DEC_POP_SD.write(1);
-                IF2DEC_FLUSH_SD.write(1);
-                PB_IF2DEC_FLUSH_SD.write(1);
-            }
-            else 
-            {
-                IF2DEC_POP_SD.write(0);
-                PB_IF2DEC_POP_SD.write(0);
-                IF2DEC_FLUSH_SD.write(0);
-                PB_IF2DEC_FLUSH_SD.write(0);
-            }
-        } 
-        else if (jump_sd && !stall_sd) 
-        {
-            pb_taken_sd.write(0);
-        
-            IF2DEC_POP_SD.write(1);
-                PB_IF2DEC_POP_SD.write(1);
-            IF2DEC_FLUSH_SD.write(1);
-                PB_IF2DEC_FLUSH_SD.write(1);
-        } 
-        else if (!jump_sd && !stall_sd) 
-        {   
-            pb_taken_sd.write(0);
-            IF2DEC_POP_SD.write(1);
-                PB_IF2DEC_POP_SD.write(1);
-            IF2DEC_FLUSH_SD.write(0);
-                PB_IF2DEC_FLUSH_SD.write(0);
-        }
-        else 
-        {
-            IF2DEC_POP_SD.write(0);
-                PB_IF2DEC_POP_SD.write(0);
-            IF2DEC_FLUSH_SD.write(0);
-                PB_IF2DEC_FLUSH_SD.write(0);
-        }
-
-/*
 
     if (stall_sd)
-    {
         IF2DEC_POP_SD = false;
-        PB_IF2DEC_POP_SD = false;
-    }
     else
-    {
         IF2DEC_POP_SD = true;
-        PB_IF2DEC_POP_SD = true;
-    }
 
-    if (jump_sd && !stall_sd)
-    //((pb_fail && !stall_sd) || (jump_sd && !stall_sd && pb_miss ))
-    {   
-        if(pb_fail){
-            IF2DEC_FLUSH_SD = true;
-            PB_IF2DEC_FLUSH_SD = true;
-        }
-        else{
-            IF2DEC_FLUSH_SD = false;
-            PB_IF2DEC_FLUSH_SD = false;
-        }
-    }
+    if (b_fail_sd && j_type_inst_sd && !stall_sd)
+        IF2DEC_FLUSH_SD = true;
     else
-    {
         IF2DEC_FLUSH_SD = false;
-        PB_IF2DEC_FLUSH_SD = false;
-    }
-*/
+
     // DEC2EXE Gestion
 
     if (stall_sd) {
@@ -934,8 +817,6 @@ void decod::pc_inc() {
 
     WRITE_PC_SD  = pc_out;
     dec2if_in_sd = pc_out;
-
-    
 }
 
 /************************************************************
@@ -1058,7 +939,4 @@ void decod::trace(sc_trace_file* tf) {
     sc_trace(tf, exe_neg_op2_sd, GET_NAME(exe_neg_op2_sd));
     sc_trace(tf, exe_wb_sd, GET_NAME(exe_wb_sd));
     sc_trace(tf, mem_sign_extend_sd, GET_NAME(mem_sign_extend_sd));
-    sc_trace(tf, PRED_BRANCH_MISS_RI, GET_NAME(PRED_BRANCH_MISS_RI));
-    sc_trace(tf, pc_out_sd, GET_NAME(pc_out_sd));
-    sc_trace(tf, pb_taken_sd, GET_NAME(pb_taken_sd));
 }
