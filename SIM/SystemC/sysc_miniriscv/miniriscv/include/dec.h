@@ -23,6 +23,18 @@ SC_MODULE(decod) {
     sc_out<bool>        WRITE_PC_ENABLE_SD;
 
     /*****************************************************
+            Interface with Prediction Branch Cache
+    ******************************************************/
+
+    sc_out<sc_uint<32>> PRED_BRANCH_CHECK_ADR_IN_SI;    // Branch instruction address need to be check in the table if it exist or not
+
+    sc_in<bool> PRED_BRANCH_MISS_OUT_SP;                // MISS/HIT for the cache MISS = 1 HIT = 0
+    sc_in<sc_uint<32>>PRED_BRANCH_TARGET_ADR_OUT_SP;    // Branch target address
+    sc_in<sc_uint<2>> PRED_BRANCH_PNT_OUT_SP;           // Branch taken target address
+    sc_in<bool> PRED_BRANCH_LRU_OUT_SP;                 // Less Recent Use
+    sc_in<sc_uint<2>> PRED_BRANCH_CPT_OUT_SP;           // Branch taken times
+
+    /*****************************************************
                     Interface with EXE
     ******************************************************/
 
@@ -80,20 +92,6 @@ SC_MODULE(decod) {
     sc_out<bool>       IF2DEC_FLUSH_SD;  // Signal sent to IFETCH to flush all instructions
 
     /*****************************************************
-                    Interface with pb_if2dec
-    ******************************************************/
-
-    sc_in<sc_uint<32>>  PRED_BRANCH_ADR_RI;
-    sc_in<bool>         PRED_BRANCH_MISS_RI;
-    sc_in<sc_uint<32>>  PRED_BRANCH_TARGET_ADR_RI;
-    sc_in<sc_uint<2>>   PRED_BRANCH_CPT_RI;
-    sc_in<bool>         PRED_BRANCH_LRU_RI;
-    sc_in<sc_uint<2>>   PRED_BRANCH_PNT_RI;
-    sc_out<bool>        PB_IF2DEC_POP_SD;    // the POP signal sent to Ifetch
-    sc_out<bool>        PB_IF2DEC_FLUSH_SD;  // Signal sent to IFETCH to flush all instructions
-
-
-    /*****************************************************
                     Interface with DEC2EXE
     ******************************************************/
 
@@ -109,7 +107,6 @@ SC_MODULE(decod) {
     sc_out<sc_uint<2>>   PRED_BRANCH_PNT_RD;
     sc_out<bool>         IS_BRANCH_RD;
     sc_out<bool>         BRANCH_TAKEN_RD;     // Signals to transfer to EXE
-
     /*****************************************************
                             BYPASSES
     ******************************************************/
@@ -264,19 +261,10 @@ SC_MODULE(decod) {
     sc_signal<bool> mem_sign_extend_sd;
     sc_signal<bool> block_bp_sd;
 
-    sc_signal<bool> debug1;
-    sc_signal<bool> debug2;
-    sc_signal<bool> debug3;
-    sc_signal<bool> debug4;
-    sc_signal<bool> pb_taken_sd;
-    sc_signal<sc_uint<32>> pc_out_sd;
-
     // Instance used :
 
     fifo<32>           dec2if;
     fifo<DEC2EXE_SIZE> dec2exe;
-
-
 
     void concat_dec2exe();
     void unconcat_dec2exe();
@@ -312,9 +300,7 @@ SC_MODULE(decod) {
         sensitive << dec2exe_in_sd << exe_op1_sd << exe_op2_sd << exe_cmd_sd << exe_neg_op2_sd
                   << exe_wb_sd << mem_data_sd << mem_load_sd << mem_store_sd << mem_sign_extend_sd
                   << mem_size_sd << optype_sd << adr_dest_sd << slti_i_sd << slt_i_sd << sltiu_i_sd
-                  << sltu_i_sd << RADR1_SD << RADR2_SD << block_bp_sd << PC_RI << PRED_BRANCH_MISS_RI
-                  << PRED_BRANCH_TARGET_ADR_RI << PRED_BRANCH_CPT_RI << PRED_BRANCH_LRU_RI << PRED_BRANCH_PNT_RI
-                  << b_type_inst_sd << jump_sd;              
+                  << sltu_i_sd << RADR1_SD << RADR2_SD << block_bp_sd;
         SC_METHOD(unconcat_dec2exe)
         sensitive << dec2exe_out_sd;
 
@@ -344,6 +330,7 @@ SC_MODULE(decod) {
                   << bltu_i_sd << bgeu_i_sd << lui_i_sd << auipc_i_sd << jal_i_sd << sw_i_sd
                   << sh_i_sd << sb_i_sd << j_type_inst_sd << jalr_type_inst_sd << dec2exe_push_sd
                   << rdata1_sd << rdata2_sd << fence_i_sd << PC_RI;
+
         SC_METHOD(pc_inc)
         sensitive << CLK.pos() << READ_PC_SR << offset_branch_sd << inc_pc_sd << jump_sd << PC_RI
                   << dec2if_full_sd << IF2DEC_EMPTY_SI << stall_sd;
