@@ -234,8 +234,9 @@ SC_MODULE(decod) {
 
     sc_signal<bool> inc_pc_sd;
     sc_signal<bool> jump_sd;
-    sc_signal<bool> pred_taken_sd;   // If the intruction is predected to jump or not 
-    sc_signal<bool> b_fail_sd; // If the predection falled or not 
+    sc_signal<bool> pred_branch_success_sd;  
+    // If the instruction decoding is branch instruction and the predection i did on last cycle is same with the decode
+    // in this cycle    
 
     // Pipeline Gestion
 
